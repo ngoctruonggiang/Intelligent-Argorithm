@@ -504,145 +504,246 @@ f(z)
 
 
 
-# 5. FORWARD PROPAGATION
+# 5. FORWARD PROPAGATION (LAN TRUYỀN TIẾN)
 
-## 5.1. Khái niệm
+---
 
-**Forward Propagation** (Lan truyền tiến) là quá trình tính output của mạng bằng cách truyền dữ liệu từ **input → hidden → output**.
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+> *Phần này giúp bạn hiểu bản chất Forward Propagation trước khi đi vào công thức.*
+
+## 5.1. Forward Propagation là gì?
+
+**Forward Propagation** (Lan truyền tiến) là quá trình **truyền dữ liệu từ đầu vào (Input) qua các lớp ẩn (Hidden) đến đầu ra (Output)** để tính kết quả dự đoán.
+
+### Ẩn dụ: "Dây chuyền sản xuất bánh mì"
+
+Hãy tưởng tượng mạng nơ-ron như một **nhà máy sản xuất bánh mì** với nhiều công đoạn:
 
 ```
-INPUT          HIDDEN          OUTPUT
-  x      →       a       →       ŷ
-     (Forward)       (Forward)
+🌾 NGUYÊN LIỆU    →    👨‍🍳 CÔNG ĐOẠN 1    →    👨‍🍳 CÔNG ĐOẠN 2    →    🍞 SẢN PHẨM
+   (Input)              (Hidden Layer 1)        (Hidden Layer 2)        (Output)
+   
+   Bột mì          →    Nhào bột           →    Nướng            →    Bánh mì
+   Nước            →    + Gia vị           →    + Nhiệt độ       →    (Dự đoán)
+   Men             →    = Khối bột         →    = Bánh chín      →
 ```
 
-## 5.2. Công thức
+**Giải thích:**
+1. **Input (Nguyên liệu):** Bạn đưa vào bột mì, nước, men (các giá trị $x_1, x_2, x_3$).
+2. **Hidden Layer 1 (Công đoạn 1):** Công nhân nhào bột, thêm gia vị (nhân với Weights, cộng Bias, áp dụng Activation).
+3. **Hidden Layer 2 (Công đoạn 2):** Đưa vào lò nướng (tiếp tục biến đổi).
+4. **Output (Sản phẩm):** Ra lò bánh mì hoàn chỉnh (giá trị dự đoán $\hat{y}$).
 
-### Tại mỗi node:
+👉 **Forward Propagation = Đi từ đầu đến cuối dây chuyền, mỗi bước biến đổi dữ liệu một chút.**
 
-**Bước 1: Tính tổng có trọng số (weighted sum)**
+---
+
+## 5.2. Công thức đơn giản nhất (Cho 1 nơ-ron)
+
+Mỗi nơ-ron làm **2 việc duy nhất**:
+
+### Bước 1: "Cân đo" nguyên liệu (Tính tổng có trọng số)
+$$z = w_1 \cdot x_1 + w_2 \cdot x_2 + ... + w_n \cdot x_n + b$$
+
+**Ý nghĩa đời thường:** 
+- Số bột mì ($x_1$) × Độ quan trọng của bột ($w_1$)
+- \+ Số nước ($x_2$) × Độ quan trọng của nước ($w_2$)
+- \+ Hệ số điều chỉnh ($b$ - Bias)
+- = Tổng "nguyên liệu đã cân đo" ($z$)
+
+### Bước 2: "Chế biến" (Áp dụng hàm kích hoạt)
+$$a = f(z)$$
+
+**Ý nghĩa đời thường:**
+- Đưa "nguyên liệu đã cân" qua "máy chế biến" (hàm kích hoạt $f$).
+- Ra kết quả $a$ (activation) là sản phẩm trung gian hoặc cuối cùng.
+
+---
+
+## 5.3. Sơ đồ tổng quan
+
 ```
-z = Σ(wᵢ × xᵢ) + b
-  = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
+         INPUT LAYER      →      HIDDEN LAYER      →      OUTPUT LAYER
+         
+              x₁                      a₁⁽¹⁾                    ŷ
+               ╲                   /      ╲
+                w₁₁              V₁         V₁
+                 ╲             /            ╲
+                  ╲          /              ╲
+                   ╲       /                 ╲
+          x₂ ────────→ [Σ+b] → [f] ─────────→ [Σ+b] → [f] → ŷ
+                   /       ╲                 /
+                  /          ╲             /
+                 /            ╲          /
+                w₂₁              V₂         V₂
+               /                   ╲      /
+              x₃                      a₂⁽¹⁾
+         
+       (Nhận dữ liệu)      (Biến đổi 1)           (Ra kết quả)
 ```
+
+---
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+> *Phần này chứa công thức chuẩn, ký hiệu, và ví dụ tính toán chi tiết.*
+
+## 5.4. Ký hiệu chuẩn (Notation)
+
+| Ký hiệu | Ý nghĩa | Ví dụ |
+|:---:|:---|:---|
+| $x$ | Vector input | $x = [x_1, x_2, x_3]$ |
+| $w_{ij}^{(l)}$ | Weight từ nơ-ron $j$ (layer $l-1$) đến nơ-ron $i$ (layer $l$) | $w_{12}^{(1)}$ = Weight từ $x_2$ đến $h_1$ |
+| $b_i^{(l)}$ | Bias của nơ-ron $i$ ở layer $l$ | $b_1^{(1)}$ = Bias của node ẩn thứ 1 |
+| $z_i^{(l)}$ | Tổng có trọng số (pre-activation) | $z_1^{(1)} = w_{11}x_1 + w_{12}x_2 + b_1$ |
+| $a_i^{(l)}$ | Activation (post-activation) | $a_1^{(1)} = \sigma(z_1^{(1)})$ |
+| $\hat{y}$ | Output dự đoán | Giá trị cuối cùng của mạng |
+
+---
+
+## 5.5. Công thức Forward Propagation
+
+### Công thức tổng quát cho Layer $l$:
+
+**Bước 1: Tính tổng có trọng số**
+$$z^{(l)} = W^{(l)} \cdot a^{(l-1)} + b^{(l)}$$
 
 **Bước 2: Áp dụng hàm kích hoạt**
-```
-a = f(z)
-```
+$$a^{(l)} = f(z^{(l)})$$
 
 Trong đó:
-- z: Tổng có trọng số (pre-activation)
-- a: Activation (post-activation)
-- f: Hàm kích hoạt (sigmoid, ReLU, ...)
+- $a^{(0)} = x$ (Input là activation của "layer 0")
+- $W^{(l)}$ là ma trận trọng số của layer $l$
+- $b^{(l)}$ là vector bias của layer $l$
+- $f$ là hàm kích hoạt (Sigmoid, ReLU, Tanh, ...)
 
-## 5.3. Ví dụ đơn giản
+---
 
-**Cho mạng 1 node:**
+## 5.6. Ví dụ 1: Mạng đơn giản (1 nơ-ron)
+
+**Đề bài:** Cho mạng 1 nơ-ron với:
+- Input: $x_1 = 0.5$, $x_2 = 0.3$
+- Weights: $w_1 = 0.4$, $w_2 = 0.6$
+- Bias: $b = 0.1$
+- Activation: Sigmoid
+
 ```
 x₁ = 0.5 ─── w₁=0.4 ───┐
                         ↘
-                         [Σ + b] ─→ [σ] ─→ y
+                         [Σ+b] ─→ [σ] ─→ ŷ
                         ↗
 x₂ = 0.3 ─── w₂=0.6 ───┘
                     b = 0.1
 ```
 
-**Bước 1: Tính z**
-```
-z = w₁×x₁ + w₂×x₂ + b
-  = 0.4×0.5 + 0.6×0.3 + 0.1
-  = 0.2 + 0.18 + 0.1
-  = 0.48
-```
+### Lời giải chi tiết:
 
-**Bước 2: Áp dụng sigmoid**
-```
-y = σ(z) = 1 / (1 + e⁻⁰·⁴⁸)
-  = 1 / (1 + 0.619)
-  = 1 / 1.619
-  ≈ 0.618
-```
+**Bước 1: Tính tổng có trọng số $z$**
+$$z = w_1 \cdot x_1 + w_2 \cdot x_2 + b$$
+$$z = 0.4 \times 0.5 + 0.6 \times 0.3 + 0.1$$
+$$z = 0.2 + 0.18 + 0.1 = 0.48$$
 
-**Kết quả:** Output = 0.618
+**Bước 2: Áp dụng Sigmoid**
+$$\hat{y} = \sigma(z) = \frac{1}{1 + e^{-z}} = \frac{1}{1 + e^{-0.48}}$$
 
-## 5.4. Forward qua nhiều layer
+Tra bảng hoặc tính: $e^{-0.48} \approx 0.619$
+$$\hat{y} = \frac{1}{1 + 0.619} = \frac{1}{1.619} \approx 0.618$$
 
-**Ký hiệu:**
-- **a⁽ˡ⁾**: Activation của layer l
-- **W⁽ˡ⁾**: Ma trận trọng số từ layer (l-1) đến layer l
-- **b⁽ˡ⁾**: Vector bias của layer l
-
-**Công thức cho layer l:**
-```
-z⁽ˡ⁾ = W⁽ˡ⁾ × a⁽ˡ⁻¹⁾ + b⁽ˡ⁾
-a⁽ˡ⁾ = f(z⁽ˡ⁾)
-```
-
-## 5.5. Ví dụ mạng 2 layer
-
-**Cấu trúc:** 2 input → 2 hidden → 1 output
-
-```
-        Hidden          Output
-x₁ ─────→ h₁ ────────→
-    ╲    ╱    ╲       ╲
-     ╲  ╱      ╲       → y
-      ╳         ╲     ╱
-     ╱  ╲        ╲   ╱
-    ╱    ╲        ╲ ╱
-x₂ ─────→ h₂ ────────→
-```
-
-**Cho:**
-- Input: x₁ = 1, x₂ = 0
-- Hidden layer weights: 
-  - w₁₁ = 0.5, w₁₂ = 0.3 (đến h₁)
-  - w₂₁ = 0.2, w₂₂ = 0.4 (đến h₂)
-- Hidden biases: b₁ = 0.1, b₂ = 0.2
-- Output layer weights: v₁ = 0.6, v₂ = 0.7
-- Output bias: b₃ = 0.1
-- Activation: Sigmoid
+**✅ Kết quả:** $\hat{y} = 0.618$
 
 ---
 
-**BƯỚC 1: Tính hidden layer**
+## 5.7. Ví dụ 2: Mạng 2 lớp (2 Input → 2 Hidden → 1 Output)
 
-**Node h₁:**
-```
-z₁ = w₁₁×x₁ + w₁₂×x₂ + b₁
-   = 0.5×1 + 0.3×0 + 0.1
-   = 0.5 + 0 + 0.1 = 0.6
+**Đề bài:** Cho mạng nơ-ron:
 
-a₁ = σ(0.6) = 1/(1 + e⁻⁰·⁶)
-   = 1/(1 + 0.549) = 1/1.549 ≈ 0.646
+```
+         Hidden Layer        Output Layer
+x₁=1 ─────→ h₁ ────────────→
+     ╲    ╱    ╲             ╲
+      ╲  ╱      ╲             → ŷ
+       ╳         ╲           ╱
+      ╱  ╲        ╲        ╱
+     ╱    ╲        ╲     ╱
+x₂=0 ─────→ h₂ ────────────→
 ```
 
-**Node h₂:**
-```
-z₂ = w₂₁×x₁ + w₂₂×x₂ + b₂
-   = 0.2×1 + 0.4×0 + 0.2
-   = 0.2 + 0 + 0.2 = 0.4
+**Cho trước:**
+| Tham số | Giá trị |
+|:---|:---|
+| Input | $x_1 = 1$, $x_2 = 0$ |
+| Weights đến $h_1$ | $w_{11} = 0.5$, $w_{12} = 0.3$ |
+| Weights đến $h_2$ | $w_{21} = 0.2$, $w_{22} = 0.4$ |
+| Bias Hidden | $b_1 = 0.1$, $b_2 = 0.2$ |
+| Weights đến Output | $v_1 = 0.6$, $v_2 = 0.7$ |
+| Bias Output | $b_3 = 0.1$ |
+| Activation | Sigmoid (tất cả các layer) |
 
-a₂ = σ(0.4) = 1/(1 + e⁻⁰·⁴)
-   = 1/(1 + 0.670) = 1/1.670 ≈ 0.599
-```
+### Lời giải chi tiết:
 
 ---
 
-**BƯỚC 2: Tính output layer**
+**🔹 BƯỚC 1: Tính Hidden Layer**
 
-```
-z₃ = v₁×a₁ + v₂×a₂ + b₃
-   = 0.6×0.646 + 0.7×0.599 + 0.1
-   = 0.388 + 0.419 + 0.1
-   = 0.907
+**Node $h_1$:**
+$$z_1 = w_{11} \cdot x_1 + w_{12} \cdot x_2 + b_1$$
+$$z_1 = 0.5 \times 1 + 0.3 \times 0 + 0.1 = 0.5 + 0 + 0.1 = 0.6$$
 
-ŷ = σ(0.907) = 1/(1 + e⁻⁰·⁹⁰⁷)
-  = 1/(1 + 0.404) ≈ 0.712
-```
+$$a_1 = \sigma(z_1) = \sigma(0.6) = \frac{1}{1 + e^{-0.6}}$$
 
-**Kết quả cuối cùng:** ŷ = 0.712
+Tính: $e^{-0.6} \approx 0.549$
+$$a_1 = \frac{1}{1 + 0.549} = \frac{1}{1.549} \approx 0.646$$
+
+---
+
+**Node $h_2$:**
+$$z_2 = w_{21} \cdot x_1 + w_{22} \cdot x_2 + b_2$$
+$$z_2 = 0.2 \times 1 + 0.4 \times 0 + 0.2 = 0.2 + 0 + 0.2 = 0.4$$
+
+$$a_2 = \sigma(z_2) = \sigma(0.4) = \frac{1}{1 + e^{-0.4}}$$
+
+Tính: $e^{-0.4} \approx 0.670$
+$$a_2 = \frac{1}{1 + 0.670} = \frac{1}{1.670} \approx 0.599$$
+
+---
+
+**🔹 BƯỚC 2: Tính Output Layer**
+
+$$z_3 = v_1 \cdot a_1 + v_2 \cdot a_2 + b_3$$
+$$z_3 = 0.6 \times 0.646 + 0.7 \times 0.599 + 0.1$$
+$$z_3 = 0.388 + 0.419 + 0.1 = 0.907$$
+
+$$\hat{y} = \sigma(z_3) = \sigma(0.907) = \frac{1}{1 + e^{-0.907}}$$
+
+Tính: $e^{-0.907} \approx 0.404$
+$$\hat{y} = \frac{1}{1 + 0.404} = \frac{1}{1.404} \approx 0.712$$
+
+---
+
+**✅ Kết quả cuối cùng:** $\hat{y} = 0.712$
+
+---
+
+## 5.8. Bảng Tổng Kết Forward Propagation
+
+| Bước | Công thức | Tên gọi |
+|:---:|:---|:---|
+| 1 | $z = \sum w_i x_i + b$ | Tổng có trọng số (Weighted Sum) |
+| 2 | $a = f(z)$ | Activation (Kích hoạt) |
+| 3 | Lặp lại Bước 1-2 cho mỗi layer | Lan truyền tiến |
+| 4 | Output layer cho ra $\hat{y}$ | Dự đoán (Prediction) |
+
+---
+
+## 5.9. Mẹo làm bài thi
+
+1. **Vẽ sơ đồ mạng** trước khi tính để không bị nhầm weight.
+2. **Tính từng node một**, viết rõ từng bước $z$ rồi mới tính $a$.
+3. **Dùng bảng tra Sigmoid** (mục 4.3) để tính nhanh.
+4. **Làm tròn đến 3 chữ số thập phân** là đủ.
+5. **Kiểm tra:** Output của Sigmoid phải nằm trong $(0, 1)$.
 
 ---
 
@@ -666,17 +767,44 @@ OUTPUT          HIDDEN          INPUT
 3. Tính **đạo hàm** theo từng trọng số
 4. **Cập nhật** trọng số để giảm sai số
 
-## 6.3. Hàm lỗi (Loss Function)
+## 6.3. Hàm lỗi (Loss Function / Cost Function)
 
-**Mean Squared Error (MSE):**
-```
-L = (1/2) × (ŷ - y)²
-```
+### a. Hiểu đơn giản: "Error là gì?"
+- **Error (E) = Điểm kém.**
+- Hãy tưởng tượng mạng nơ-ron là một học sinh đi thi.
+    - **Target ($y$):** Đáp án chuẩn của thầy cô.
+    - **Prediction ($\hat{y}$):** Bài làm của học sinh.
+- Mục tiêu của học sinh là làm sao để **Error càng nhỏ càng tốt** (tiến về 0).
 
-**Binary Cross-Entropy:**
-```
-L = -[y×log(ŷ) + (1-y)×log(1-ŷ)]
-```
+### b. Các loại hàm lỗi phổ biến
+
+#### 1. Mean Squared Error (MSE) - "Bình phương sai số"
+Dùng cho bài toán **Hồi quy** (Dự đoán giá nhà, nhiệt độ...).
+
+$$ L = \frac{1}{n} \sum (\hat{y} - y)^2 $$
+hoặc đơn giản hơn: $L = \frac{1}{2}(\hat{y} - y)^2$ (số 1/2 để đạo hàm cho đẹp).
+
+- **Tại sao phải bình phương?**
+    - Để loại bỏ số âm (đoán thấp hơn hay cao hơn đều bị phạt như nhau).
+    - Để "trừng phạt" nặng những sai sót lớn (sai càng nhiều, lỗi càng tăng vọt).
+
+#### 2. Binary Cross-Entropy - "Độ lệch xác suất"
+Dùng cho bài toán **Phân loại nhị phân** (Output dùng Sigmoid).
+
+$$ L = -[y \cdot \log(\hat{y}) + (1-y) \cdot \log(1-\hat{y})] $$
+
+- Nếu Target $y=1$ (Đúng): Mạng phải dự đoán $\hat{y} \to 1$.
+- Nếu Target $y=0$ (Sai): Mạng phải dự đoán $\hat{y} \to 0$.
+- Nếu đoán ngược lại $\to$ Lỗi $L$ sẽ tiến ra vô cùng cực lớn (phạt cực nặng).
+
+### c. Khi nào dùng cái nào? (Đi thi cần nhớ)
+
+| Bài toán | Output Layer | Hàm Lỗi (Loss Function) |
+|---|---|---|
+| **Hồi quy** (Dự đoán số thực) | Linear (Không dùng hàm KH) | MSE (Mean Squared Error) |
+| **Phân loại Nhị phân** (Chó/Mèo) | Sigmoid | Binary Cross-Entropy |
+| **Phân loại Nhiều lớp** (0-9) | Softmax | Categorical Cross-Entropy |
+
 
 ## 6.4. Quy tắc chuỗi (Chain Rule)
 

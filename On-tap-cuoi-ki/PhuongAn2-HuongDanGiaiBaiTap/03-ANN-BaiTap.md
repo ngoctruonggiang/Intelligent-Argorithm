@@ -125,21 +125,55 @@ $$ E = 0.0905 $$
 ## 2.3. Lời giải chi tiết: Trường hợp X2
 
 **Input X2:** $(-0.35, -1.5, 0.25)$
-**Target:** $(-0.5, 0.5)$
+**Target (Đầu ra mong muốn):** $(-0.5, 0.5)$
 
-**Bạn hãy tự luyện tập tính toán theo các bước trên. Dưới đây là đáp án để đối chiếu:**
+### BƯỚC 1: Tính toán tại Lớp Ẩn (Hidden Layer)
 
-1. **Lớp Ẩn:**
-   - $z_{h1} = -0.035 - 1.05 - 0.1 + 0.1 = -1.085 \rightarrow out_{h1} \approx 0.252$
-   - $z_{h2} = -0.07 - 1.5 - 0.075 + 0.1 = -1.545 \rightarrow out_{h2} \approx 0.176$
+**Node $h_1$:**
+- Tổng trọng số $z_{h1}$:
+  $$ z_{h1} = (x_1 \cdot w_1) + (x_2 \cdot w_3) + (x_3 \cdot w_5) + bias $$
+  $$ z_{h1} = (-0.35 \cdot 0.1) + (-1.5 \cdot 0.7) + (0.25 \cdot -0.4) + 0.1 $$
+  $$ z_{h1} = -0.035 - 1.05 - 0.1 + 0.1 = -1.085 $$
 
-2. **Lớp Đầu Ra:**
-   - $z_{o1} = (0.252 \cdot 0.7) + (0.176 \cdot -0.17) + 0.1 = 0.246 \rightarrow out_{o1} \approx 0.561$
-   - $z_{o2} = (0.252 \cdot 0.2) + (0.176 \cdot 0.41) + 0.1 = 0.222 \rightarrow out_{o2} \approx 0.555$
+- Đầu ra $out_{h1}$:
+  $$ out_{h1} = \sigma(-1.085) = \frac{1}{1 + e^{1.085}} \approx \frac{1}{1 + 2.96} \approx 0.252 $$
 
-3. **Lỗi E:**
-   - $E = 0.5 \cdot [(-0.5 - 0.561)^2 + (0.5 - 0.555)^2]$
-   - $E = 0.5 \cdot [(-1.061)^2 + (-0.055)^2] \approx 0.564$
+**Node $h_2$:**
+- Tổng trọng số $z_{h2}$:
+  $$ z_{h2} = (x_1 \cdot w_2) + (x_2 \cdot w_4) + (x_3 \cdot w_6) + bias $$
+  $$ z_{h2} = (-0.35 \cdot 0.2) + (-1.5 \cdot 1.0) + (0.25 \cdot -0.3) + 0.1 $$
+  $$ z_{h2} = -0.07 - 1.5 - 0.075 + 0.1 = -1.545 $$
+
+- Đầu ra $out_{h2}$:
+  $$ out_{h2} = \sigma(-1.545) = \frac{1}{1 + e^{1.545}} \approx \frac{1}{1 + 4.69} \approx 0.176 $$
+
+### BƯỚC 2: Tính toán tại Lớp Đầu Ra (Output Layer)
+
+**Node $o_1$:**
+- Tổng trọng số $z_{o1}$:
+  $$ z_{o1} = (out_{h1} \cdot w_7) + (out_{h2} \cdot w_9) + bias $$
+  $$ z_{o1} = (0.252 \cdot 0.7) + (0.176 \cdot -0.17) + 0.1 $$
+  $$ z_{o1} = 0.1764 - 0.030 + 0.1 = 0.2464 $$
+
+- Đầu ra thực tế $out_{o1}$:
+  $$ out_{o1} = \sigma(0.2464) \approx 0.561 $$
+
+**Node $o_2$:**
+- Tổng trọng số $z_{o2}$:
+  $$ z_{o2} = (out_{h1} \cdot w_8) + (out_{h2} \cdot w_{10}) + bias $$
+  $$ z_{o2} = (0.252 \cdot 0.2) + (0.176 \cdot 0.41) + 0.1 $$
+  $$ z_{o2} = 0.0504 + 0.0722 + 0.1 = 0.2226 $$
+
+- Đầu ra thực tế $out_{o2}$:
+  $$ out_{o2} = \sigma(0.2226) \approx 0.555 $$
+
+### BƯỚC 3: Tính Giá trị Lỗi (Error)
+
+$$ E = \frac{1}{2} [ (Target_1 - Output_1)^2 + (Target_2 - Output_2)^2 ] $$
+$$ E = \frac{1}{2} [ (-0.5 - 0.561)^2 + (0.5 - 0.555)^2 ] $$
+$$ E = \frac{1}{2} [ (-1.061)^2 + (-0.055)^2 ] $$
+$$ E = \frac{1}{2} [ 1.126 + 0.003 ] $$
+$$ E = \frac{1}{2} \cdot 1.129 = 0.5645 $$
 
 **✅ Kết quả cho X2: E ≈ 0.564**
 
@@ -207,7 +241,53 @@ $$ E = 0.5 \cdot 0.5734 = 0.2867 $$
 
 ---
 
-# 4. BÀI TẬP TỰ LUYỆN
+## 3.3. Lời giải chi tiết: Trường hợp X2
+
+**Input X2:** $(-0.45, -1.0, 0.15)$
+**Target O2:** $(-0.15, 1.0)$
+**Bias:** $0.2$
+
+### BƯỚC 1: Tính toán Lớp Ẩn
+
+**Node $h_1$:**
+$$ z_{h1} = (x_1 \cdot w_1) + (x_2 \cdot w_3) + (x_3 \cdot w_5) + bias $$
+$$ z_{h1} = (-0.45 \cdot 0.1) + (-1.0 \cdot 0.6) + (0.15 \cdot -0.4) + 0.2 $$
+$$ z_{h1} = -0.045 - 0.6 - 0.06 + 0.2 = -0.505 $$
+$$ out_{h1} = \sigma(-0.505) \approx 0.376 $$
+
+**Node $h_2$:**
+$$ z_{h2} = (x_1 \cdot w_2) + (x_2 \cdot w_4) + (x_3 \cdot w_6) + bias $$
+$$ z_{h2} = (-0.45 \cdot -0.2) + (-1.0 \cdot 1.0) + (0.15 \cdot -0.3) + 0.2 $$
+$$ z_{h2} = 0.09 - 1.0 - 0.045 + 0.2 = -0.755 $$
+$$ out_{h2} = \sigma(-0.755) \approx 0.320 $$
+
+### BƯỚC 2: Tính toán Lớp Đầu Ra
+
+**Node $o_1$:**
+$$ z_{o1} = (out_{h1} \cdot w_7) + (out_{h2} \cdot w_9) + bias $$
+$$ z_{o1} = (0.376 \cdot 0.7) + (0.320 \cdot -0.17) + 0.2 $$
+$$ z_{o1} = 0.2632 - 0.0544 + 0.2 = 0.4088 $$
+$$ out_{o1} = \sigma(0.4088) \approx 0.601 $$
+
+**Node $o_2$:**
+$$ z_{o2} = (out_{h1} \cdot w_8) + (out_{h2} \cdot w_{10}) + bias $$
+$$ z_{o2} = (0.376 \cdot 0.25) + (0.320 \cdot 0.5) + 0.2 $$
+$$ z_{o2} = 0.094 + 0.16 + 0.2 = 0.454 $$
+$$ out_{o2} = \sigma(0.454) \approx 0.612 $$
+
+### BƯỚC 3: Tính Lỗi $E_{mean}$
+
+$$ E = \frac{1}{2} [ (Target_1 - Output_1)^2 + (Target_2 - Output_2)^2 ] $$
+$$ E = \frac{1}{2} [ (-0.15 - 0.601)^2 + (1.0 - 0.612)^2 ] $$
+$$ E = 0.5 \cdot [ (-0.751)^2 + (0.388)^2 ] $$
+$$ E = 0.5 \cdot [ 0.564 + 0.151 ] $$
+$$ E = 0.5 \cdot 0.715 = 0.3575 $$
+
+**✅ Kết quả cho X2: E ≈ 0.358**
+
+---
+
+# 4. BÀI TẬP TỰ LUYỆN THÊM
 
 > **Lưu ý:** Để làm tốt bài thi, bạn cần tự tay bấm máy tính các bài tập dưới đây.
 
@@ -220,12 +300,6 @@ Cho mạng có cấu trúc:
 - **Output (1 node):**
   - $w=[0.6, -0.5], bias=0.2$
 - **Yêu cầu:** Tính đầu ra mạng và lỗi SSE nếu target = 0.
-
-## Bài 2: Vẫn đề thi SE313 - Case X2 (Nâng cao)
-Hãy tính toán cho trường hợp X2 của đề thi trên (xem hình ảnh để lấy số liệu):
-- **Input:** $(-0.45, -1.0, 0.15)$
-- **Target:** $(-0.15, 1.0)$
-- **Đáp án gợi ý:** $E \approx 0.153$ (Hãy tự tính để kiểm chứng!)
 
 ---
 *Hết phần Bài tập ANN - Phương án 2*
