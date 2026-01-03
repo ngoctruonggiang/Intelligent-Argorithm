@@ -1,341 +1,523 @@
 # 📚 HƯỚNG DẪN GIẢI BÀI TẬP: CÂY QUYẾT ĐỊNH (ID3)
-## Phương án 2: Bài tập từng bước chi tiết
+
+## Phương án 2: Bài tập từng bước chi tiết - GIỐNG ĐỀ THI
 
 ---
 
-> **Lời dặn của Giảng viên:**
-> 
-> Bài tập Decision Tree yêu cầu tính toán **Entropy** và **Information Gain**. Đây là phần nhiều bạn hay sai vì công thức log₂ khá phức tạp.
-> 
-> Mình sẽ giải từng bài **rất chi tiết**, kèm theo bảng tra cứu để các bạn làm bài thi nhanh hơn!
+> **⚠️ LƯU Ý QUAN TRỌNG:**
+>
+> Tài liệu này chứa **bài giải mẫu giống đề thi thực tế** với thuộc tính categorical (Engine, Type, Color...).
+> Học theo cách giải này để đạt điểm cao!
 
 ---
 
-## 📋 DẠNG BÀI TẬP DECISION TREE THƯỜNG GẶP
+# 📑 MỤC LỤC
 
-| Dạng | Mô tả | Độ khó |
-|:----:|-------|:------:|
-| **Dạng 1** | Tính Entropy của một tập dữ liệu | ⭐ Dễ |
-| **Dạng 2** | Tính Information Gain cho một thuộc tính | ⭐⭐ Trung bình |
-| **Dạng 3** | Xây dựng toàn bộ cây quyết định | ⭐⭐⭐ Khó |
-
----
-
-# 🔷 DẠNG 1: TÍNH ENTROPY
-
-## Bài tập 1.1 (Trường hợp đơn giản nhất)
-
-**Đề bài:** Cho tập dữ liệu S có 10 mẫu, trong đó:
-- 10 mẫu thuộc lớp "Có"
-- 0 mẫu thuộc lớp "Không"
-
-Tính Entropy(S).
-
-### Lời giải chi tiết
-
-**Bước 1: Xác định tỷ lệ**
-- p(Có) = 10/10 = 1
-- p(Không) = 0/10 = 0
-
-**Bước 2: Áp dụng công thức**
-
-⚠️ **Quy ước:** 0 × log₂(0) = 0 (vì lim x→0 của x·log(x) = 0)
-
-```
-Entropy(S) = -p(Có)×log₂(p(Có)) - p(Không)×log₂(p(Không))
-           = -1 × log₂(1) - 0 × log₂(0)
-           = -1 × 0 - 0
-           = 0
-```
-
-**✅ Đáp án:** Entropy(S) = **0**
-
-**💡 Giải thích:** Entropy = 0 vì dữ liệu hoàn toàn thuần nhất (tất cả đều "Có").
+1. [Tóm tắt công thức](#1-tóm-tắt-công-thức)
+2. [Bảng tra log₂ (QUAN TRỌNG)](#2-bảng-tra-log)
+3. [BÀI MẪU 1: Đề thi xe hơi (8 mẫu)](#3-bài-mẫu-1-đề-thi-xe-hơi)
+4. [BÀI MẪU 2: Đề thi game (8 mẫu)](#4-bài-mẫu-2-đề-thi-game)
+5. [Bài tập tự luyện](#5-bài-tập-tự-luyện)
 
 ---
 
-## Bài tập 1.2 (Trường hợp 50-50)
+# 1️⃣ TÓM TẮT CÔNG THỨC
 
-**Đề bài:** Cho tập S có 8 mẫu: 4 "Có" và 4 "Không". Tính Entropy(S).
+## Entropy (Độ hỗn loạn)
 
-### Lời giải chi tiết
+$$Entropy(S) = -\sum_{i} p_i \times \log_2(p_i)$$
 
-**Bước 1: Xác định tỷ lệ**
-- p(Có) = 4/8 = 0.5
-- p(Không) = 4/8 = 0.5
+**Với 2 lớp (Yes/No):**
+$$E(S) = -p_{Yes} \log_2(p_{Yes}) - p_{No} \log_2(p_{No})$$
 
-**Bước 2: Tra bảng hoặc tính**
-- log₂(0.5) = -1
+## Information Gain
 
-**Bước 3: Áp dụng công thức**
-```
-Entropy(S) = -0.5 × log₂(0.5) - 0.5 × log₂(0.5)
-           = -0.5 × (-1) - 0.5 × (-1)
-           = 0.5 + 0.5
-           = 1
-```
+$$Gain(S, A) = E(S) - \sum_{v \in Values(A)} \frac{|S_v|}{|S|} \times E(S_v)$$
 
-**✅ Đáp án:** Entropy(S) = **1**
-
-**💡 Giải thích:** Entropy = 1 (max) vì dữ liệu hoàn toàn hỗn loạn (50-50).
+**Ý nghĩa:** Gain = Entropy trước - Entropy sau khi chia
 
 ---
 
-## Bài tập 1.3 (Đề thi thực tế)
+# 2️⃣ BẢNG TRA LOG₂ (PHẢI THUỘC!)
 
-**Đề bài:** Tập S có 14 mẫu: 9 "Yes" và 5 "No". Tính Entropy(S).
+## Bảng giá trị -p×log₂(p)
 
-### Lời giải chi tiết
+| Tỷ lệ |   p   | -p×log₂(p) |
+| :---: | :---: | :--------: |
+|  0/n  |   0   |   0.000    |
+|  1/8  | 0.125 |   0.375    |
+|  1/6  | 0.167 |   0.431    |
+|  1/5  | 0.200 |   0.464    |
+|  1/4  | 0.250 |   0.500    |
+|  1/3  | 0.333 |   0.528    |
+|  2/5  | 0.400 |   0.529    |
+|  3/8  | 0.375 |   0.531    |
+|  1/2  | 0.500 | **0.500**  |
+|  5/8  | 0.625 |   0.424    |
+|  3/5  | 0.600 |   0.442    |
+|  2/3  | 0.667 |   0.390    |
+|  3/4  | 0.750 |   0.311    |
+|  4/5  | 0.800 |   0.258    |
+|  5/6  | 0.833 |   0.222    |
+|  7/8  | 0.875 |   0.169    |
+|  n/n  | 1.000 |   0.000    |
 
-**Bước 1: Tính tỷ lệ**
-- p(Yes) = 9/14 ≈ 0.643
-- p(No) = 5/14 ≈ 0.357
+## Bảng Entropy thường gặp
 
-**Bước 2: Tính các thành phần**
-
-Sử dụng bảng tra (hoặc máy tính):
-- 9/14 × log₂(9/14) = 0.643 × (-0.637) = -0.410
-- 5/14 × log₂(5/14) = 0.357 × (-1.486) = -0.531
-
-**Bước 3: Tính Entropy**
-```
-Entropy(S) = -(-0.410) - (-0.531)
-           = 0.410 + 0.531
-           = 0.941
-```
-
-**✅ Đáp án:** Entropy(S) ≈ **0.94**
-
----
-
-# 🔷 DẠNG 2: TÍNH INFORMATION GAIN
-
-## Bài tập 2.1 (Cơ bản)
-
-**Đề bài:** Cho tập S có 14 mẫu (9 Yes, 5 No). Thuộc tính "Gió" chia S thành:
-- **Yếu (8 mẫu):** 6 Yes, 2 No
-- **Mạnh (6 mẫu):** 3 Yes, 3 No
-
-Tính Gain(S, Gió).
-
-### Lời giải chi tiết
-
-**📍 Bước 1: Tính Entropy(S) gốc**
-
-(Đã tính ở bài 1.3)
-```
-Entropy(S) = 0.94
-```
-
-**📍 Bước 2: Tính Entropy từng nhánh con**
-
-**Nhánh Yếu (6 Yes, 2 No trong 8):**
-- p(Yes) = 6/8 = 0.75
-- p(No) = 2/8 = 0.25
-```
-Entropy(Yếu) = -0.75×log₂(0.75) - 0.25×log₂(0.25)
-             = -0.75×(-0.415) - 0.25×(-2)
-             = 0.311 + 0.5
-             = 0.811
-```
-
-**Nhánh Mạnh (3 Yes, 3 No trong 6):**
-- p(Yes) = 3/6 = 0.5
-- p(No) = 3/6 = 0.5
-```
-Entropy(Mạnh) = -0.5×log₂(0.5) - 0.5×log₂(0.5)
-              = 0.5 + 0.5
-              = 1
-```
-
-**📍 Bước 3: Tính Entropy trung bình có trọng số**
-
-```
-Entropy_tb = (|S_Yếu|/|S|) × E(Yếu) + (|S_Mạnh|/|S|) × E(Mạnh)
-           = (8/14) × 0.811 + (6/14) × 1
-           = 0.571 × 0.811 + 0.429 × 1
-           = 0.463 + 0.429
-           = 0.892
-```
-
-**📍 Bước 4: Tính Gain**
-
-```
-Gain(S, Gió) = Entropy(S) - Entropy_tb
-             = 0.94 - 0.892
-             = 0.048
-```
-
-**✅ Đáp án:** Gain(S, Gió) = **0.048**
+| Tỷ lệ Yes/No |  Entropy  |
+| :----------: | :-------: |
+| 8/0 hoặc 0/8 | **0.000** |
+| 7/1 hoặc 1/7 |   0.544   |
+| 6/2 hoặc 2/6 |   0.811   |
+| 5/3 hoặc 3/5 |   0.971   |
+|     4/4      | **1.000** |
 
 ---
 
-## Bài tập 2.2 (So sánh nhiều thuộc tính)
+# 3️⃣ BÀI MẪU 1: ĐỀ THI XE HƠI (Bài tập 1)
 
-**Đề bài:** Với cùng tập S (14 mẫu: 9 Yes, 5 No), thuộc tính "Trời" chia thành:
-- **Nắng (5 mẫu):** 2 Yes, 3 No
-- **Mây (4 mẫu):** 4 Yes, 0 No
-- **Mưa (5 mẫu):** 3 Yes, 2 No
+## 📝 ĐỀ BÀI
 
-Tính Gain(S, Trời) và so sánh với Gain(S, Gió).
+Xây dựng cây quyết định (ID3) cho bảng dữ liệu sau:
 
-### Lời giải chi tiết
-
-**📍 Bước 1: Entropy(S) = 0.94** (đã biết)
-
-**📍 Bước 2: Tính Entropy từng nhánh**
-
-**Nắng (2 Yes, 3 No):**
-```
-E(Nắng) = -(2/5)log₂(2/5) - (3/5)log₂(3/5)
-        = -0.4×(-1.322) - 0.6×(-0.737)
-        = 0.529 + 0.442
-        = 0.971
-```
-
-**Mây (4 Yes, 0 No):**
-```
-E(Mây) = 0  (tất cả đều Yes → thuần nhất)
-```
-
-**Mưa (3 Yes, 2 No):**
-```
-E(Mưa) = -(3/5)log₂(3/5) - (2/5)log₂(2/5)
-       = 0.971
-```
-
-**📍 Bước 3: Entropy trung bình**
-
-```
-Entropy_tb = (5/14)×0.971 + (4/14)×0 + (5/14)×0.971
-           = 0.347 + 0 + 0.347
-           = 0.694
-```
-
-**📍 Bước 4: Tính Gain**
-
-```
-Gain(S, Trời) = 0.94 - 0.694 = 0.246
-```
-
-**📍 Bước 5: So sánh**
-
-| Thuộc tính | Gain |
-|:----------:|:----:|
-| Trời | **0.246** ✅ |
-| Gió | 0.048 |
-
-**✅ Kết luận:** Chọn **"Trời"** làm nút gốc vì Gain cao hơn!
+| ID  | Engine | Type  | Color  | 4WD |  Want?  |
+| :-: | :----: | :---: | :----: | :-: | :-----: |
+|  1  | 2000cc |  SUV  | Silver | Yes | **Yes** |
+|  2  | 1000cc | Sedan | Silver | Yes | **Yes** |
+|  3  | 2000cc | Sport |  Blue  | No  | **No**  |
+|  4  | 1000cc |  SUV  |  Blue  | No  | **Yes** |
+|  5  | 2000cc | Sedan | Silver | Yes | **No**  |
+|  6  | 2000cc | Sport |  Blue  | Yes | **Yes** |
+|  7  | 1000cc | Sedan |  Blue  | No  | **Yes** |
+|  8  | 1000cc |  SUV  | Silver | No  | **Yes** |
 
 ---
 
-# 🔷 DẠNG 3: XÂY DỰNG CÂY HOÀN CHỈNH
+## 🔷 GIẢI CHI TIẾT
 
-## Bài tập 3.1
+### BƯỚC 1: Tính Entropy tập gốc S
 
-**Đề bài:** Cho bảng dữ liệu đơn giản:
+**Đếm nhãn:**
 
-| ID | Màu | Kích thước | Mua? |
-|:--:|:---:|:----------:|:----:|
-| 1 | Đỏ | Nhỏ | Có |
-| 2 | Đỏ | Lớn | Có |
-| 3 | Xanh | Nhỏ | Không |
-| 4 | Xanh | Lớn | Không |
+- Yes: 6 mẫu (ID: 1, 2, 4, 6, 7, 8)
+- No: 2 mẫu (ID: 3, 5)
+- Tổng: 8 mẫu
 
-Xây dựng cây quyết định.
-
-### Lời giải chi tiết
-
-**📍 Bước 1: Tính Entropy(S)**
-- 2 Có, 2 Không → p = 0.5
-- Entropy(S) = 1
-
-**📍 Bước 2: Tính Gain cho "Màu"**
-
-| Màu | Có | Không | Entropy |
-|:---:|:--:|:-----:|:-------:|
-| Đỏ | 2 | 0 | 0 |
-| Xanh | 0 | 2 | 0 |
+**Tính Entropy:**
 
 ```
-Entropy_tb = (2/4)×0 + (2/4)×0 = 0
-Gain(Màu) = 1 - 0 = 1  ← PERFECT!
+p(Yes) = 6/8 = 3/4 = 0.75
+p(No) = 2/8 = 1/4 = 0.25
+
+E(S) = -0.75×log₂(0.75) - 0.25×log₂(0.25)
+     = 0.311 + 0.500     (tra bảng)
+     = 0.811
 ```
 
-**📍 Bước 3: Tính Gain cho "Kích thước"**
-
-| Kích thước | Có | Không | Entropy |
-|:----------:|:--:|:-----:|:-------:|
-| Nhỏ | 1 | 1 | 1 |
-| Lớn | 1 | 1 | 1 |
-
-```
-Entropy_tb = (2/4)×1 + (2/4)×1 = 1
-Gain(Kích thước) = 1 - 1 = 0  ← USELESS!
-```
-
-**📍 Bước 4: Chọn và vẽ cây**
-
-Chọn "Màu" vì Gain = 1 (hoàn hảo).
-
-```
-        [MÀU?]
-       /      \
-    (Đỏ)    (Xanh)
-     |         |
-   [CÓ]    [KHÔNG]
-```
-
-**✅ Đáp án:** Cây chỉ cần 1 nút "Màu" là đủ phân loại!
+✅ **Entropy(S) = 0.811**
 
 ---
 
-# 📝 BẢNG TRA CỨU LOG₂ VÀ ENTROPY
+### BƯỚC 2: Tính Gain cho thuộc tính "Engine"
 
-## Bảng 1: Giá trị log₂ thường gặp
+**Chia theo Engine:**
 
-| Phân số | Thập phân | log₂ |
-|:-------:|:---------:|:----:|
-| 1/8 | 0.125 | -3.00 |
-| 1/4 | 0.25 | -2.00 |
-| 1/3 | 0.333 | -1.58 |
-| 2/5 | 0.4 | -1.32 |
-| 1/2 | 0.5 | -1.00 |
-| 3/5 | 0.6 | -0.74 |
-| 2/3 | 0.667 | -0.58 |
-| 3/4 | 0.75 | -0.42 |
-| 4/5 | 0.8 | -0.32 |
-| 1/1 | 1.0 | 0.00 |
+| Engine | Yes | No  | Tổng |
+| :----: | :-: | :-: | :--: |
+| 2000cc |  2  |  2  |  4   |
+| 1000cc |  4  |  0  |  4   |
 
-## Bảng 2: Giá trị Entropy thường gặp
+**Tính Entropy từng nhánh:**
 
-| Tỷ lệ (p+/p-) | Entropy |
-|:-------------:|:-------:|
-| 10/0 hoặc 0/10 | 0.00 |
-| 9/1 | 0.47 |
-| 8/2 | 0.72 |
-| 7/3 | 0.88 |
-| 6/4 | 0.97 |
-| 5/5 | 1.00 |
+**Engine = 2000cc (2 Yes, 2 No):**
+
+```
+E(2000cc) = -0.5×log₂(0.5) - 0.5×log₂(0.5)
+          = 0.5 + 0.5
+          = 1.0
+```
+
+**Engine = 1000cc (4 Yes, 0 No):**
+
+```
+E(1000cc) = -1×log₂(1) - 0×log₂(0)
+          = 0 + 0
+          = 0  ← Thuần nhất!
+```
+
+**Tính Gain:**
+
+```
+Gain(S, Engine) = E(S) - [(4/8)×E(2000cc) + (4/8)×E(1000cc)]
+                = 0.811 - [0.5×1.0 + 0.5×0]
+                = 0.811 - 0.5
+                = 0.311
+```
+
+✅ **Gain(Engine) = 0.311**
 
 ---
 
-# 📌 BÀI TẬP TỰ LUYỆN
+### BƯỚC 3: Tính Gain cho thuộc tính "Type"
 
-**Bài 1:** Tính Entropy của tập có 7 Yes, 3 No.
+**Chia theo Type:**
 
-**Bài 2:** Cho S=[10+, 10-]. Thuộc tính A chia thành:
-- A=1: [8+, 2-]
-- A=0: [2+, 8-]
+| Type  | Yes | No  | Tổng |
+| :---: | :-: | :-: | :--: |
+|  SUV  |  3  |  0  |  3   |
+| Sedan |  2  |  1  |  3   |
+| Sport |  1  |  1  |  2   |
+
+**Tính Entropy từng nhánh:**
+
+**Type = SUV (3 Yes, 0 No):**
+
+```
+E(SUV) = 0  ← Thuần nhất!
+```
+
+**Type = Sedan (2 Yes, 1 No):**
+
+```
+p(Yes) = 2/3, p(No) = 1/3
+E(Sedan) = -0.667×log₂(0.667) - 0.333×log₂(0.333)
+         = 0.390 + 0.528
+         = 0.918
+```
+
+**Type = Sport (1 Yes, 1 No):**
+
+```
+E(Sport) = 1.0
+```
+
+**Tính Gain:**
+
+```
+Gain(S, Type) = 0.811 - [(3/8)×0 + (3/8)×0.918 + (2/8)×1.0]
+              = 0.811 - [0 + 0.344 + 0.25]
+              = 0.811 - 0.594
+              = 0.217
+```
+
+✅ **Gain(Type) = 0.217**
+
+---
+
+### BƯỚC 4: Tính Gain cho thuộc tính "Color"
+
+**Chia theo Color:**
+
+| Color  | Yes | No  | Tổng |
+| :----: | :-: | :-: | :--: |
+| Silver |  3  |  1  |  4   |
+|  Blue  |  3  |  1  |  4   |
+
+**Tính Entropy từng nhánh:**
+
+**Color = Silver (3 Yes, 1 No):**
+
+```
+p(Yes) = 3/4 = 0.75, p(No) = 1/4 = 0.25
+E(Silver) = 0.311 + 0.500 = 0.811
+```
+
+**Color = Blue (3 Yes, 1 No):**
+
+```
+E(Blue) = 0.811  (giống Silver)
+```
+
+**Tính Gain:**
+
+```
+Gain(S, Color) = 0.811 - [(4/8)×0.811 + (4/8)×0.811]
+               = 0.811 - 0.811
+               = 0
+```
+
+✅ **Gain(Color) = 0** ← Thuộc tính vô dụng!
+
+---
+
+### BƯỚC 5: Tính Gain cho thuộc tính "4WD"
+
+**Chia theo 4WD:**
+
+| 4WD | Yes | No  | Tổng |
+| :-: | :-: | :-: | :--: |
+| Yes |  3  |  1  |  4   |
+| No  |  3  |  1  |  4   |
+
+**Tính Gain:**
+
+```
+Gain(S, 4WD) = 0.811 - [(4/8)×0.811 + (4/8)×0.811]
+             = 0.811 - 0.811
+             = 0
+```
+
+✅ **Gain(4WD) = 0** ← Thuộc tính vô dụng!
+
+---
+
+### BƯỚC 6: So sánh và chọn nút gốc
+
+| Thuộc tính |       Gain       |
+| :--------: | :--------------: |
+| **Engine** | **0.311** ⭐ MAX |
+|    Type    |      0.217       |
+|   Color    |      0.000       |
+|    4WD     |      0.000       |
+
+✅ **Chọn "Engine" làm nút gốc!**
+
+---
+
+### BƯỚC 7: Xây dựng cây
+
+```
+                    ┌───────────────┐
+                    │    ENGINE?    │
+                    └───────┬───────┘
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+          (2000cc)                    (1000cc)
+          4 mẫu                       4 mẫu
+          2Y/2N                       4Y/0N
+              │                           │
+              ▼                           ▼
+        Tiếp tục chia              ┌─────────────┐
+        (E = 1.0)                  │    YES      │
+                                   │   (Leaf)    │
+                                   └─────────────┘
+```
+
+**Với nhánh Engine = 2000cc (cần chia tiếp):**
+
+Dữ liệu con: ID 1, 3, 5, 6 (2 Yes, 2 No)
+
+| ID  | Type  | Color  | 4WD | Want? |
+| :-: | :---: | :----: | :-: | :---: |
+|  1  |  SUV  | Silver | Yes |  Yes  |
+|  3  | Sport |  Blue  | No  |  No   |
+|  5  | Sedan | Silver | Yes |  No   |
+|  6  | Sport |  Blue  | Yes |  Yes  |
+
+Tính Gain cho các thuộc tính còn lại... (Type có Gain cao nhất)
+
+**CÂY HOÀN CHỈNH:**
+
+```
+                         ┌───────────────┐
+                         │    ENGINE?    │
+                         └───────┬───────┘
+                                 │
+               ┌─────────────────┴─────────────────┐
+               │                                   │
+           (2000cc)                            (1000cc)
+               │                                   │
+               ▼                                   ▼
+        ┌─────────────┐                     ┌─────────────┐
+        │    TYPE?    │                     │    YES      │
+        └──────┬──────┘                     └─────────────┘
+               │
+     ┌─────────┼─────────┐
+     │         │         │
+  (SUV)    (Sedan)   (Sport)
+     │         │         │
+     ▼         ▼         ▼
+  ┌─────┐  ┌─────┐  ┌─────────┐
+  │ YES │  │ NO  │  │  4WD?   │
+  └─────┘  └─────┘  └────┬────┘
+                         │
+                    ┌────┴────┐
+                    │         │
+                  (Yes)     (No)
+                    │         │
+                    ▼         ▼
+                 ┌─────┐  ┌─────┐
+                 │ YES │  │ NO  │
+                 └─────┘  └─────┘
+```
+
+---
+
+# 4️⃣ BÀI MẪU 2: ĐỀ THI GAME (Đề 2)
+
+## 📝 ĐỀ BÀI
+
+Xây dựng cây quyết định cho bảng dữ liệu:
+
+| ID  |  Xuất xứ   | Thể loại |  Đồ họa   | Hình thức trả phí | Chơi? |
+| :-: | :--------: | :------: | :-------: | :---------------: | :---: |
+|  1  | Trung Quốc |  MMORPG  |    Đẹp    |   Free to play    |  Yes  |
+|  2  |   Âu/Mỹ    |   MOBA   |    Đẹp    |   Free to play    |  Yes  |
+|  3  | Trung Quốc |  Sport   | Tương đối |    Pay to play    |  No   |
+|  4  |   Âu/Mỹ    |  MMORPG  | Tương đối |    Pay to play    |  Yes  |
+|  5  | Trung Quốc |   MOBA   |    Đẹp    |   Free to play    |  No   |
+|  6  | Trung Quốc |  Sport   | Tương đối |   Free to play    |  Yes  |
+|  7  |   Âu/Mỹ    |   MOBA   | Tương đối |    Pay to play    |  Yes  |
+|  8  |   Âu/Mỹ    |  MMORPG  |    Đẹp    |    Pay to play    |  Yes  |
+
+---
+
+## 🔷 GIẢI TÓM TẮT
+
+### Bước 1: Entropy(S)
+
+- Yes: 6, No: 2 → E(S) = 0.811
+
+### Bước 2: Tính Gain các thuộc tính
+
+| Thuộc tính |                 Phân bố                  |   Gain    |
+| :--------: | :--------------------------------------: | :-------: |
+|  Xuất xứ   |           TQ: 2Y/2N, ÂM: 4Y/0N           | **0.311** |
+|  Thể loại  | MMORPG: 3Y/0N, MOBA: 2Y/1N, Sport: 1Y/1N |   0.217   |
+|   Đồ họa   |          Đẹp: 3Y/1N, TĐ: 3Y/1N           |     0     |
+|  Trả phí   |          FtP: 3Y/1N, PtP: 3Y/1N          |     0     |
+
+### Bước 3: Chọn nút gốc
+
+→ **Xuất xứ** có Gain cao nhất (0.311)
+
+### Cây kết quả
+
+```
+                    ┌───────────────┐
+                    │   XUẤT XỨ?    │
+                    └───────┬───────┘
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+        (Trung Quốc)                   (Âu/Mỹ)
+          2Y/2N                         4Y/0N
+              │                           │
+              ▼                           ▼
+        ┌─────────────┐            ┌─────────────┐
+        │  THỂ LOẠI?  │            │    YES      │
+        └─────────────┘            └─────────────┘
+              │
+    ┌─────────┼─────────┐
+    │         │         │
+ (MMORPG)  (MOBA)   (Sport)
+    │         │         │
+   YES       NO     ┌───────┐
+                    │TRẢ PHÍ│
+                    └───┬───┘
+                   FtP  │  PtP
+                    │   │   │
+                   YES     NO
+```
+
+---
+
+# 5️⃣ BÀI TẬP TỰ LUYỆN
+
+## Bài 1: Tính Entropy
+
+Tính Entropy cho các tập sau:
+
+- a) S₁ = [5 Yes, 3 No]
+- b) S₂ = [6 Yes, 2 No]
+- c) S₃ = [4 Yes, 4 No]
+
+<details>
+<summary>📝 Đáp án</summary>
+
+a) E(S₁) = -5/8×log₂(5/8) - 3/8×log₂(3/8) = 0.424 + 0.531 = **0.954**
+
+b) E(S₂) = -6/8×log₂(6/8) - 2/8×log₂(2/8) = 0.311 + 0.500 = **0.811**
+
+c) E(S₃) = -0.5×log₂(0.5) - 0.5×log₂(0.5) = 0.5 + 0.5 = **1.0**
+
+</details>
+
+---
+
+## Bài 2: Tính Gain
+
+Cho S = [6 Yes, 2 No], E(S) = 0.811
+
+Thuộc tính A chia S thành:
+
+- A = 1: [4 Yes, 0 No]
+- A = 0: [2 Yes, 2 No]
 
 Tính Gain(S, A).
 
-**Bài 3:** Thuộc tính B chia S thành:
-- B=1: [5+, 5-]
-- B=0: [5+, 5-]
+<details>
+<summary>📝 Đáp án</summary>
 
-Tính Gain(S, B). So sánh với Gain(S, A).
+E(A=1) = 0 (thuần nhất)
+E(A=0) = 1.0 (50-50)
+
+Gain = 0.811 - [(4/8)×0 + (4/8)×1.0]
+= 0.811 - 0.5
+= **0.311**
+
+</details>
 
 ---
 
-*Hết tài liệu bài tập Decision Tree - Phương án 2*
+## Bài 3: So sánh thuộc tính
+
+Cho S = [4 Yes, 4 No], E(S) = 1.0
+
+Thuộc tính B chia S thành:
+
+- B = 1: [3 Yes, 1 No]
+- B = 0: [1 Yes, 3 No]
+
+Thuộc tính C chia S thành:
+
+- C = 1: [2 Yes, 2 No]
+- C = 0: [2 Yes, 2 No]
+
+Thuộc tính nào tốt hơn?
+
+<details>
+<summary>📝 Đáp án</summary>
+
+**Thuộc tính B:**
+
+- E(B=1) = E(B=0) = 0.811 (tra bảng 3/4, 1/4)
+- Gain(B) = 1.0 - [(4/8)×0.811 + (4/8)×0.811] = 1.0 - 0.811 = **0.189**
+
+**Thuộc tính C:**
+
+- E(C=1) = E(C=0) = 1.0
+- Gain(C) = 1.0 - [(4/8)×1.0 + (4/8)×1.0] = 1.0 - 1.0 = **0**
+
+→ **B tốt hơn** vì Gain(B) > Gain(C)
+
+</details>
+
+---
+
+# 📋 CHECKLIST LÀM BÀI THI DECISION TREE
+
+- [ ] **Bước 0:** Đếm Yes/No của tập gốc
+- [ ] **Bước 1:** Tính E(S) gốc
+- [ ] **Bước 2:** Với MỖI thuộc tính:
+  - [ ] Lập bảng chia theo từng giá trị
+  - [ ] Đếm Yes/No mỗi nhánh
+  - [ ] Tính E() mỗi nhánh (tra bảng!)
+  - [ ] Tính Gain = E(S) - Σ(weight × E_nhánh)
+- [ ] **Bước 3:** Chọn thuộc tính có Gain MAX → Nút gốc
+- [ ] **Bước 4:** Nhánh nào E=0 → Tạo lá
+- [ ] **Bước 5:** Nhánh nào E>0 → Lặp lại từ bước 1
+
+---
+
+> **💡 MẸO LÀM NHANH:**
+>
+> 1. **Thuộc lòng bảng tra** để không cần tính log₂
+> 2. **E = 0** khi tất cả cùng lớp → DỪNG
+> 3. **E = 1** khi 50-50
+> 4. **Gain = 0** nghĩa là thuộc tính vô dụng
+
+---
+
+_Hết tài liệu Decision Tree Bài tập - Phương án 2_

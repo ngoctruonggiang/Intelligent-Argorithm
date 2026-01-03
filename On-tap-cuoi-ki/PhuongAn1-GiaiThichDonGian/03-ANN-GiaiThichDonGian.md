@@ -165,9 +165,15 @@ Layer 1    Layer 2    Layer 3
 
 ### 3.1.4. Bias (Độ lệch)
 
-**Bias** là một giá trị cộng thêm vào tổng có trọng số.
+**Bias** là một giá trị cộng thêm (hoặc trừ đi) giúp mạng nơ-ron điều chỉnh "ngưỡng kích hoạt".
 
-Ý nghĩa: Cho phép đường quyết định **dịch chuyển** thay vì luôn đi qua gốc tọa độ.
+**Hiểu đơn giản:**
+Hãy tưởng tượng $Weighted Sum$ (Tổng có trọng số) là **điểm thi** của bạn.
+- Nếu không có Bias: Bạn so sánh điểm với số 0. ($Điểm > 0$ là đậu).
+- Nếu **Bias = -5**: Bạn cần $Điểm + (-5) > 0 \Leftrightarrow Điểm > 5$ mới đậu. (Bias đóng vai trò là ngưỡng đậu).
+- Nếu **Bias = +2**: Bạn chỉ cần $Điểm + 2 > 0 \Leftrightarrow Điểm > -2$. (Bạn được cộng điểm vùng, dễ đậu hơn).
+
+**Ý nghĩa toán học:** Cho phép đường quyết định **tịnh tiến** (dời lên/xuống/trái/phải) để khớp với dữ liệu tốt hơn, thay vì bị "trói buộc" phải luôn đi qua gốc tọa độ (0,0).
 
 ## 3.2. Các loại layer
 
@@ -243,128 +249,260 @@ Layer 1    Layer 2
 
 # 4. HÀM KÍCH HOẠT (ACTIVATION FUNCTIONS)
 
-## 4.1. Tại sao cần hàm kích hoạt?
+## 4.1. Tại sao cần hàm kích hoạt? (QUAN TRỌNG)
 
-**Vấn đề:** Nếu không có hàm kích hoạt, mạng nơ-ron chỉ là **tổ hợp tuyến tính**.
+### Hiểu đơn giản: "Bộ lọc thông tin"
+- Hàm kích hoạt giống như một **"người gác cổng"** tại mỗi nơ-ron.
+- Nó quyết định xem thông tin này có **quan trọng** để truyền tiếp hay không.
+- **Ví dụ:** Nếu điểm số < 5, hàm kích hoạt ReLU sẽ biến nó thành 0 (Rớt, không cần quan tâm nữa). Nếu > 5, nó giữ nguyên hoặc biến đổi để truyền đi.
 
-```
-Không có hàm kích hoạt:
-y = w₂(w₁x + b₁) + b₂
-  = w₂w₁x + w₂b₁ + b₂
-  = Wx + B  ← Vẫn là tuyến tính!
-```
+### Hiểu theo toán học: "Uốn cong đường thẳng"
+- **Không có hàm kích hoạt:** Mạng nơ-ron chỉ là các phép nhân cộng tuyến tính ($y = ax + b$). Dù có xếp 100 lớp chồng lên nhau, nó vẫn chỉ vẽ được một **đường thẳng**.
 
-**Giải pháp:** Thêm hàm **phi tuyến** (non-linear) sau mỗi layer.
+    **Chứng minh:**
+    Giả sử ta có 2 lớp chồng lên nhau (không có hàm kích hoạt):
+    1. Lớp 1: $y_1 = w_1 \cdot x + b_1$
+    2. Lớp 2: $y_2 = w_2 \cdot y_1 + b_2$
 
-## 4.2. Sigmoid
+    Thay $y_1$ vào $y_2$:
+    $$ y_2 = w_2(w_1 \cdot x + b_1) + b_2 $$
+    $$ y_2 = (w_2 \cdot w_1) \cdot x + (w_2 \cdot b_1 + b_2) $$
 
-### Công thức:
-```
-σ(z) = 1 / (1 + e⁻ᶻ)
-```
+    Đặt $W_{moi} = w_2 \cdot w_1$ và $B_{moi} = w_2 \cdot b_1 + b_2$.
+    Ta có: **$y_2 = W_{moi} \cdot x + B_{moi}$**
+    👉 **Kết luận:** Đây vẫn chỉ là phương trình đường thẳng ($y = ax + b$). Việc thêm lớp thứ 2 không làm tăng sức mạnh của mô hình, nó chỉ tương đương với 1 lớp duy nhất!
 
-### Đặc điểm:
-- Đầu ra trong khoảng **(0, 1)**
-- Hình chữ S (S-curve)
-- Phù hợp cho **xác suất**
+- **Có hàm kích hoạt (Phi tuyến):** Nó giúp **"bẻ cong"** các đường thẳng này. Nhờ đó, mạng nơ-ron có thể vẽ được bất kỳ hình dạng biên giới nào để phân loại dữ liệu phức tạp (như phân loại ảnh chó mèo - dữ liệu phân bố cong queo).
 
-### Đồ thị:
-```
-σ(z)
-  1 |        ___________
-    |       /
-0.5 |------/-------------
-    |     /
-  0 |____/
-    +------------------→ z
-       -4  -2  0  2  4
-```
+👉 **Tóm lại:** Hàm kích hoạt đem lại khả năng **"tư duy phức tạp"** cho mạng nơ-ron.
 
-### Bảng giá trị thường dùng:
+## 4.2. Ví dụ trực quan: Tại sao dữ liệu ảnh lại "cong queo"?
 
-| z | e⁻ᶻ | σ(z) = 1/(1+e⁻ᶻ) |
-|---|-----|------------------|
-| -3 | 20.09 | 0.047 |
-| -2 | 7.39 | 0.119 |
-| -1 | 2.72 | 0.269 |
-| 0 | 1 | 0.500 |
-| 1 | 0.37 | 0.731 |
-| 2 | 0.14 | 0.881 |
-| 3 | 0.05 | 0.953 |
+Nhiều bạn thắc mắc: *"Tại sao phân loại chó mèo lại phức tạp đến mức không thể dùng đường thẳng?"*
 
-### Đạo hàm:
-```
-σ'(z) = σ(z) × (1 - σ(z))
-```
+### 1. Dữ liệu Tuyến Tính (Linear - Đơn giản)
+- **Ví dụ:** Phân loại **người lớn** và **trẻ em** dựa trên **Chiều cao**.
+- **Dữ liệu:**
+    - Trẻ em: Cao < 1m4
+    - Người lớn: Cao > 1m4
+- **Giải quyết:** Bạn chỉ cần kẻ **một vạch thẳng** tại mốc 1m4 là xong. Đây là bài toán tuyến tính.
 
-**Ví dụ:**
-- σ(0) = 0.5
-- σ'(0) = 0.5 × (1 - 0.5) = 0.5 × 0.5 = 0.25
+### 2. Dữ liệu Phi Tuyến (Non-Linear - Phức tạp)
+- **Ví dụ:** Phân loại **Chó** và **Mèo** dựa trên **Hàng triệu điểm ảnh (pixels)**.
+- **Vấn đề:**
+    - Không có bất kỳ "vạch thẳng" đơn giản nào tách được chúng.
+    - Một con mèo màu trắng có thể giống "đám mây".
+    - Một con chó cuộn tròn có thể giống "cục bông".
+    - Trong không gian dữ liệu, các điểm ảnh của "Chó" và "Mèo" **xoắn quyện vào nhau** (giống như âm và dương trong vòng tròn bát quái).
+- **Giải quyết:** Mạng nơ-ron cần các hàm kích hoạt để **uốn cong** các đường biên giới, luồn lách qua các đám dữ liệu xoắn nùi đó để tách chúng ra.
 
-### Tính chất quan trọng:
-```
-σ'(z) = σ(z) × (1 - σ(z))
+> **Tưởng tượng:** Dữ liệu chó/mèo giống như hai sợi dây thừng xanh/đỏ xoắn vào nhau. Bạn không thể dùng một nhát dao thẳng (Linear) để cắt rời chúng mà không làm đứt dây. Bạn cần "gỡ rối" (Non-Linear) từ từ.
 
-Nếu đã biết a = σ(z), thì:
-σ'(z) = a × (1 - a)
-```
 
-Điều này **rất hữu ích** trong backpropagation!
-
-## 4.3. ReLU (Rectified Linear Unit)
-
-### Công thức:
-```
-ReLU(z) = max(0, z)
-```
-
-### Đặc điểm:
-- Đầu ra trong khoảng **[0, +∞)**
-- Đơn giản, tính toán nhanh
-- Phổ biến nhất trong deep learning
-
-### Đồ thị:
-```
-ReLU(z)
-   |        /
-   |       /
-   |      /
-   |_____/
-   +------------------→ z
-      -2  0  2  4
-```
-
-### Đạo hàm:
-```
-ReLU'(z) = 0 nếu z < 0
-         = 1 nếu z > 0
-```
-
-## 4.4. Tanh
-
-### Công thức:
-```
-tanh(z) = (eᶻ - e⁻ᶻ) / (eᶻ + e⁻ᶻ)
-```
-
-### Đặc điểm:
-- Đầu ra trong khoảng **(-1, 1)**
-- Zero-centered (tâm tại 0)
-
-### So sánh với Sigmoid:
-```
-tanh(z) = 2×σ(2z) - 1
-```
-
-## 4.5. Bảng so sánh các hàm kích hoạt
-
-| Hàm | Khoảng giá trị | Ưu điểm | Nhược điểm |
-|-----|----------------|---------|------------|
-| Sigmoid | (0, 1) | Xác suất | Vanishing gradient |
-| ReLU | [0, +∞) | Nhanh | Dead neurons |
-| Tanh | (-1, 1) | Zero-centered | Vanishing gradient |
+## 4.3. Các loại Hàm Kích Hoạt phổ biến
 
 ---
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+> *Phần này giúp bạn hiểu bản chất và ghi nhớ lâu. Đọc phần này trước khi đi vào toán học.*
+
+### 1. Sigmoid - "Bộ lọc Xác suất" (Giống Giáo viên chấm điểm)
+
+**Tính cách:** Nó ép mọi con số về khoảng **0 đến 1**.
+- **Ví dụ:** Dù bạn làm bài siêu tốt (giá trị 1 triệu) hay siêu tệ (giá trị -1 tỷ), Sigmoid cũng chỉ cho bạn điểm từ 0 đến 1 (0% đến 100%).
+    - Làm bài cực tốt → Gần 1 (gần 100%).
+    - Làm bài cực tệ → Gần 0 (gần 0%).
+    - Làm bình thường (Input = 0) → Đúng 0.5 (50%).
+
+**Dùng khi nào?**
+- Chỉ dùng ở **Cổng ra (Output Layer)** khi bạn cần tính xác suất (Có/Không, Đậu/Rớt).
+- **Đừng dùng ở lớp ẩn** vì nó học rất chậm (bệnh "Vanishing Gradient" - sẽ giải thích ở Phần 2).
+
+---
+
+### 2. ReLU - "Thầy Giám Thị Khắt Khe" (Giống Cổng soát vé)
+
+**Biệt danh:** Đây là hàm **"quốc dân"**, dùng nhiều nhất trong Deep Learning.
+
+**Tính cách:** Cực kỳ dứt khoát!
+- Nếu là số **Âm**: **"Cút!"** (Cho về 0 luôn).
+- Nếu là số **Dương**: **"Mời vào!"** (Giữ nguyên giá trị).
+
+**Hình ảnh:** Giống như cổng soát vé:
+- Không có vé (Giá trị âm): Không được vào (Output = 0).
+- Có vé (Giá trị dương): Mời vào y nguyên.
+
+**Dùng khi nào?**
+- **Luôn là lựa chọn số 1 cho các lớp ẩn (Hidden Layers).**
+- Lý do: Tính toán siêu nhanh và giúp mạng học tốt hơn Sigmoid rất nhiều.
+
+---
+
+### 3. Tanh - "Sigmoid phiên bản Mạnh Mẽ"
+
+**Tính cách:** Giống Sigmoid (cũng hình chữ S) nhưng mạnh mẽ hơn. Nó ép giá trị về khoảng **-1 đến 1** (thay vì 0 đến 1).
+
+**Điểm khác biệt quan trọng:**
+- Sigmoid: Tâm ở 0.5 (chỉ có số dương).
+- Tanh: Tâm ở 0 (có cả âm và dương) → Tốt hơn cho việc học.
+
+**Dùng khi nào?**
+- Tốt hơn Sigmoid một chút ở lớp ẩn, nhưng vẫn thua ReLU về tốc độ.
+- Dùng trong một số kiến trúc đặc biệt (như RNN, LSTM).
+
+---
+
+### Bảng Tóm Tắt Nhanh (Dễ nhớ)
+
+| Hàm | Ẩn dụ | Khoảng giá trị | Dùng ở đâu? |
+|:---:|:---:|:---:|:---:|
+| **Sigmoid** | Giáo viên chấm điểm 0-100% | $(0, 1)$ | Output (Xác suất) |
+| **ReLU** | Cổng soát vé (Âm thì loại) | $[0, +\infty)$ | Hidden Layers (Mặc định) |
+| **Tanh** | Sigmoid mạnh hơn | $(-1, 1)$ | Hidden (Đôi khi) |
+
+---
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+> *Phần này chứa công thức toán học, đạo hàm, và các vấn đề kỹ thuật. Đây là những gì bạn cần viết vào bài thi.*
+
+### 1. Hàm Sigmoid (Logistic Function)
+
+#### a. Công thức Toán học
+- **Công thức chính:** 
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+
+- **Đạo hàm:**
+$$\sigma'(z) = \sigma(z) \cdot (1 - \sigma(z))$$
+
+- **Tính chất đặc biệt:** Nếu đặt $a = \sigma(z)$, thì $\sigma'(z) = a(1-a)$. Điều này rất hữu ích trong Backpropagation vì ta chỉ cần lưu giá trị $a$ (output) mà không cần tính lại $z$ (input).
+
+#### b. Đồ thị
+```
+σ(z)
+  1 |           ___________
+    |          /
+0.5 |_________/
+    |        /
+  0 |_______/
+    +------------------------→ z
+        -5   -2   0   2   5
+```
+
+#### c. Bảng tra cứu giá trị (Dùng khi làm bài tập)
+
+| $z$ | $e^{-z}$ | $\sigma(z)$ | Ghi nhớ |
+|:---:|:---:|:---:|:---|
+| -3 | 20.09 | **0.047** | ≈ 5% |
+| -2 | 7.39 | **0.119** | ≈ 12% |
+| -1 | 2.72 | **0.269** | ≈ 27% |
+| 0 | 1.00 | **0.500** | Chính xác 50% |
+| 1 | 0.37 | **0.731** | ≈ 73% |
+| 2 | 0.14 | **0.881** | ≈ 88% |
+| 3 | 0.05 | **0.953** | ≈ 95% |
+
+> **Mẹo:** $\sigma(-z) = 1 - \sigma(z)$. Ví dụ: $\sigma(-2) = 1 - \sigma(2) = 1 - 0.881 = 0.119$.
+
+#### d. Vấn đề học thuật: Vanishing Gradient
+- **Đạo hàm max của Sigmoid chỉ là 0.25** (tại $z=0$).
+- Khi mạng có nhiều lớp, Backpropagation phải nhân liên tiếp các đạo hàm (Chain Rule):
+$$\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial a_n} \cdot \sigma'(z_n) \cdot \sigma'(z_{n-1}) \cdot ... \cdot \sigma'(z_1)$$
+- Nếu có 10 lớp: $0.25^{10} \approx 0.0000009$ → Gradient gần bằng 0!
+- **Kết quả:** Các lớp đầu tiên không được cập nhật trọng số → Mạng không học được → Gọi là **Vanishing Gradient Problem**.
+
+---
+
+### 2. Hàm Tanh (Hyperbolic Tangent)
+
+#### a. Công thức Toán học
+- **Công thức chính:**
+$$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
+
+- **Đạo hàm:**
+$$\tanh'(z) = 1 - \tanh^2(z)$$
+
+- **Tính chất:** Nếu đặt $a = \tanh(z)$, thì $\tanh'(z) = 1 - a^2$.
+
+#### b. Đồ thị
+```
+tanh(z)
+  1 |           ___________
+    |          /
+  0 |_________/____________
+    |        /
+ -1 |_______/
+    +------------------------→ z
+        -5   -2   0   2   5
+```
+
+#### c. Mối quan hệ với Sigmoid
+$$\tanh(z) = 2 \cdot \sigma(2z) - 1$$
+
+#### d. Ưu điểm so với Sigmoid
+- **Zero-centered:** Tâm dữ liệu là 0 (có cả âm và dương).
+- Điều này giúp việc cập nhật trọng số đi đúng hướng hơn (ít zig-zag).
+- Đạo hàm max là **1.0** (lớn hơn 0.25 của Sigmoid).
+
+#### e. Nhược điểm
+- Vẫn bị **Vanishing Gradient** khi $|z|$ lớn (đạo hàm tiến về 0 ở hai cực).
+
+---
+
+### 3. Hàm ReLU (Rectified Linear Unit)
+
+#### a. Công thức Toán học
+- **Công thức chính:**
+$$f(z) = \max(0, z) = \begin{cases} z & \text{nếu } z > 0 \\ 0 & \text{nếu } z \leq 0 \end{cases}$$
+
+- **Đạo hàm:**
+$$f'(z) = \begin{cases} 1 & \text{nếu } z > 0 \\ 0 & \text{nếu } z \leq 0 \end{cases}$$
+
+#### b. Đồ thị
+```
+f(z)
+  5 |              /
+  4 |             /
+  3 |            /
+  2 |           /
+  1 |          /
+  0 |_________/
+    +------------------------→ z
+        -3   -1   0   1   3
+```
+
+#### c. Tại sao ReLU là Vua của Hidden Layers?
+1. **Giải quyết Vanishing Gradient:**
+   - Đạo hàm = 1 (với $z > 0$). Nhân 1 triệu lần số 1 vẫn là 1!
+   - Gradient được bảo toàn xuyên suốt mạng sâu.
+
+2. **Tính toán siêu nhanh:**
+   - Chỉ cần so sánh $z$ với 0 (nhanh hơn nhiều so với tính $e^z$ của Sigmoid/Tanh).
+
+#### d. Vấn đề học thuật: Dying ReLU
+- Nếu input luôn âm ($z < 0$), đạo hàm = 0 mãi mãi.
+- Nơ-ron sẽ ngừng học hoàn toàn → Gọi là **"Dying ReLU"** (Nơ-ron chết).
+- **Khắc phục:** Dùng **Leaky ReLU** (cho phép đạo hàm nhỏ thay vì 0 khi $z < 0$).
+
+---
+
+### 4. Bảng So Sánh Tổng Hợp (QUAN TRỌNG - NHỚ ĐỂ ĐI THI)
+
+| Tiêu chí | Sigmoid | Tanh | ReLU |
+|:---|:---:|:---:|:---:|
+| **Công thức** | $\frac{1}{1+e^{-z}}$ | $\frac{e^z - e^{-z}}{e^z + e^{-z}}$ | $\max(0, z)$ |
+| **Khoảng giá trị** | $(0, 1)$ | $(-1, 1)$ | $[0, +\infty)$ |
+| **Đạo hàm** | $\sigma(1-\sigma)$ | $1 - \tanh^2$ | $0$ hoặc $1$ |
+| **Đạo hàm Max** | $0.25$ | $1.0$ | $1.0$ |
+| **Tâm tại 0?** | ❌ Không | ✅ Có | ❌ Không |
+| **Vấn đề lớn** | Vanishing Gradient | Vanishing Gradient | Dying ReLU |
+| **Tốc độ tính** | Chậm (mũ) | Chậm (mũ) | **Rất nhanh** |
+| **Dùng ở đâu?** | Output (Xác suất) | Hidden (Ít dùng) | **Hidden (Mặc định)** |
+
+---
+
+
 
 # 5. FORWARD PROPAGATION
 

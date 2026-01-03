@@ -512,7 +512,80 @@ Với j = 0, 1, 2, ... (cập nhật đồng thời tất cả).
 
 ---
 
-# 7. BÀI TẬP TỰ LUYỆN
+---
+
+# 7. GIẢI BÀI TẬP THỰC TẾ (BÀI TẬP 4)
+
+![Bài tập 4](../Bai-tap-tham-khao/Bài%20tập-1,Bài%20tập-2,Bài%20tập-3/Bài%20tập-4.png)
+
+## 7.1. Đề bài
+Một trường Đại học khảo sát số giờ học ở nhà (Hours) và kết quả thi (Scores) của 8 sinh viên:
+
+| Hours (x) | 2.0 | 4.6 | 2.5 | 8.0 | 3.0 | 1.0 | 8.7 | 5.0 |
+|:---------:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Scores (y)| 4.1 | 6.7 | 4.7 | 8.2 | 5.0 | 3.2 | 9.3 | 7.0 |
+
+**Yêu cầu:** Sử dụng phương pháp hồi quy tuyến tính để dự đoán điểm thi của một sinh viên học **6.5 giờ**.
+
+---
+
+## 7.2. Lời giải chi tiết (Phương pháp bình phương tối thiểu)
+
+Chúng ta cần tìm phương trình đường thẳng: $y = \theta_0 + \theta_1 x$
+
+Công thức tính:
+$$ \theta_1 = \frac{n \sum xy - \sum x \sum y}{n \sum x^2 - (\sum x)^2} $$
+$$ \theta_0 = \bar{y} - \theta_1 \bar{x} $$
+
+### BƯỚC 1: Lập bảng tính toán
+
+| STT | Hours ($x$) | Scores ($y$) | $x^2$ | $xy$ |
+|:---:|:-----------:|:------------:|:----------:|:----------:|
+| 1 | 2.0 | 4.1 | 4.00 | 8.20 |
+| 2 | 4.6 | 6.7 | 21.16 | 30.82 |
+| 3 | 2.5 | 4.7 | 6.25 | 11.75 |
+| 4 | 8.0 | 8.2 | 64.00 | 65.60 |
+| 5 | 3.0 | 5.0 | 9.00 | 15.00 |
+| 6 | 1.0 | 3.2 | 1.00 | 3.20 |
+| 7 | 8.7 | 9.3 | 75.69 | 80.91 |
+| 8 | 5.0 | 7.0 | 25.00 | 35.00 |
+| **Tổng** | **34.8** | **48.2** | **206.1** | **250.48** |
+
+- $n = 8$
+- $\sum x = 34.8$
+- $\sum y = 48.2$
+- $\sum x^2 = 206.1$
+- $\sum xy = 250.48$
+
+### BƯỚC 2: Tính các tham số
+
+**Tính trung bình:**
+- $\bar{x} = 34.8 / 8 = 4.35$
+- $\bar{y} = 48.2 / 8 = 6.025$
+
+**Tính $\theta_1$ (Hệ số góc):**
+$$ \theta_1 = \frac{8(250.48) - (34.8)(48.2)}{8(206.1) - (34.8)^2} $$
+$$ \theta_1 = \frac{2003.84 - 1677.36}{1648.8 - 1211.04} $$
+$$ \theta_1 = \frac{326.48}{437.76} \approx 0.7458 $$
+
+**Tính $\theta_0$ (Hệ số chặn):**
+$$ \theta_0 = 6.025 - 0.7458(4.35) $$
+$$ \theta_0 = 6.025 - 3.2442 = 2.7808 $$
+
+👉 **Phương trình hồi quy:** $y = 2.78 + 0.75x$
+
+### BƯỚC 3: Dự đoán
+
+Với số giờ học $x = 6.5$:
+$$ y = 2.7808 + 0.7458(6.5) $$
+$$ y = 2.7808 + 4.8477 $$
+$$ y = 7.6285 $$
+
+**✅ Kết luận:** Sinh viên học 6.5 giờ dự kiến đạt khoảng **7.6 điểm**.
+
+--- 
+
+# 8. MẸO LÀM BÀI
 
 ## 7.1. Dạng 1: Tính h(x)
 

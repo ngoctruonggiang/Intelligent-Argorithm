@@ -1,609 +1,231 @@
-# PHƯƠNG ÁN 2: HƯỚNG DẪN GIẢI BÀI TẬP TỪNG BƯỚC
+# PHƯƠNG ÁN 2: HƯỚNG DẪN GIẢI BÀI TẬP TỪNG BƯỚC (CẬP NHẬT MỚI)
 # BÀI TẬP MẠNG NƠ-RON NHÂN TẠO (ANN)
 
 ---
 
 ## 📚 MỤC LỤC
 
-1. [Dạng bài tập thường gặp](#1-dạng-bài-tập-thường-gặp)
-2. [Bài tập 1: Tính Sigmoid](#2-bài-tập-1-tính-sigmoid)
-3. [Bài tập 2: Forward Propagation đơn giản](#3-bài-tập-2-forward-propagation-đơn-giản)
-4. [Bài tập 3: Forward Propagation mạng 2 lớp](#4-bài-tập-3-forward-propagation-mạng-2-lớp)
-5. [Bài tập 4: Backpropagation 1 vòng](#5-bài-tập-4-backpropagation-1-vòng)
-6. [Bài tập 5: Forward + Backward hoàn chỉnh](#6-bài-tập-5-forward--backward-hoàn-chỉnh)
-7. [Bài tập tự luyện](#7-bài-tập-tự-luyện)
-8. [Bảng tra cứu và mẹo](#8-bảng-tra-cứu-và-mẹo)
+1. [Tóm tắt công thức cần nhớ](#1-tóm-tắt-công-thức-cần-nhớ)
+2. [BÀI TẬP 1: Giải đề Bài tập-3.png](#2-bài-tập-1-giải-đề-bài-tập-3png)
+3. [BÀI TẬP 2: Giải đề thi SE313 (HK2 19-20)](#3-bài-tập-2-giải-đề-thi-se313-hk2-19-20)
+4. [Bài tập tự luyện](#4-bài-tập-tự-luyện)
 
 ---
 
-# 1. DẠNG BÀI TẬP THƯỜNG GẶP
+# 1. TÓM TẮT CÔNG THỨC CẦN NHỚ
 
-## 1.1. Các dạng đề phổ biến
+## 1.1. Sigmoid
+Hàm kích hoạt phổ biến nhất trong các bài tập này.
 
-| Dạng | Mô tả | Độ khó |
-|------|-------|--------|
-| Dạng 1 | Tính hàm sigmoid và đạo hàm | ⭐ |
-| Dạng 2 | Forward propagation 1 node | ⭐⭐ |
-| Dạng 3 | Forward propagation nhiều lớp | ⭐⭐⭐ |
-| Dạng 4 | Backpropagation cập nhật trọng số | ⭐⭐⭐⭐ |
-| Dạng 5 | Kết hợp Forward + Backward | ⭐⭐⭐⭐⭐ |
+$$ \sigma(z) = \frac{1}{1 + e^{-z}} $$
 
-## 1.2. Công thức cần nhớ
+**Bảng giá trị nhanh:**
+| z | -1.0 | -0.5 | 0 | 0.5 | 1.0 |
+|---|---|---|---|---|---|
+| σ(z) | 0.269 | 0.378 | 0.500 | 0.622 | 0.731 |
 
-### Sigmoid:
-```
-σ(z) = 1 / (1 + e⁻ᶻ)
-σ'(z) = σ(z) × (1 - σ(z)) = a × (1 - a)
-```
+## 1.2. Forward Propagation (Lan truyền tiến)
+Tại mỗi node:
+1. **Tính tổng trọng số (Weighted Sum):** $z = \sum (w_i \cdot x_i) + bias$
+2. **Tính đầu ra (Activation):** $output = \sigma(z)$
 
-### Forward Propagation:
-```
-z = Σwᵢxᵢ + b
-a = σ(z)
-```
+## 1.3. Công thức tính lỗi (Error)
+Có 2 công thức phổ biến (cần đọc kỹ đề):
 
-### Backpropagation:
-```
-δ_output = (ŷ - y) × ŷ × (1 - ŷ)
-δ_hidden = (w × δ_next) × a × (1 - a)
-w_mới = w_cũ - α × δ × input
-b_mới = b_cũ - α × δ
-```
+**Dạng 1: Sum of Squared Errors (SSE) - Thường chia 2**
+$$ E = \frac{1}{2} \sum (Target - Output)^2 $$
+
+**Dạng 2: Mean Squared Error (MSE) - Chia cho n**
+$$ E_{mean} = \frac{1}{n} \sum (Target - Output)^2 $$
 
 ---
 
-# 2. BÀI TẬP 1: TÍNH SIGMOID
+# 2. BÀI TẬP 1: GIẢI ĐỀ BÀI TẬP-3.png
 
-## 2.1. Đề bài
+![Bài tập 3](../Bai-tap-tham-khao/Bài%20tập-1,Bài%20tập-2,Bài%20tập-3/Bài%20tập-3.png)
 
-**Tính giá trị hàm sigmoid và đạo hàm tại:**
-a) z = 0
-b) z = 1
-c) z = -1
-d) z = 2
+## 2.1. Phân tích đề bài
 
----
+**1. Cấu trúc mạng:**
+- **Input (3 node):** $x_1, x_2, x_3$
+- **Hidden (2 node):** $h_1, h_2$
+- **Output (2 node):** $o_1, o_2$
+- **Bias:** $w_0 = 0.1$ (Áp dụng cho cả Hidden và Output layer)
 
-## 2.2. Lời giải chi tiết
+**2. Trọng số (Weights):**
+- **Lớp Input -> Hidden:**
+  - Vào $h_1$: $w_1=0.1, w_3=0.7, w_5=-0.4$
+  - Vào $h_2$: $w_2=0.2, w_4=1.0, w_6=-0.3$
+- **Lớp Hidden -> Output:**
+  - Vào $o_1$: $w_7=0.7, w_9=-0.17$
+  - Vào $o_2$: $w_8=0.2, w_{10}=0.41$
 
-### a) z = 0
-
-**Tính σ(0):**
-```
-σ(0) = 1 / (1 + e⁻⁰)
-     = 1 / (1 + e⁰)
-     = 1 / (1 + 1)
-     = 1 / 2
-     = 0.5
-```
-
-**Tính σ'(0):**
-```
-σ'(0) = σ(0) × (1 - σ(0))
-      = 0.5 × (1 - 0.5)
-      = 0.5 × 0.5
-      = 0.25
-```
+**3. Công thức lỗi Output:**
+$E = \frac{1}{2} \sum (t_d - o_d)^2$
 
 ---
 
-### b) z = 1
+## 2.2. Lời giải chi tiết: Trường hợp X1
 
-**Tính σ(1):**
-```
-e⁻¹ ≈ 0.368
+**Input X1:** $(0.1, -0.3, 0.3)$
+**Target (Đầu ra mong muốn):** $(1, 0.5)$
 
-σ(1) = 1 / (1 + e⁻¹)
-     = 1 / (1 + 0.368)
-     = 1 / 1.368
-     ≈ 0.731
-```
+### BƯỚC 1: Tính toán tại Lớp Ẩn (Hidden Layer)
 
-**Tính σ'(1):**
-```
-σ'(1) = 0.731 × (1 - 0.731)
-      = 0.731 × 0.269
-      ≈ 0.197
-```
+**Node $h_1$:**
+- Tổng trọng số $z_{h1}$:
+  $$ z_{h1} = (x_1 \cdot w_1) + (x_2 \cdot w_3) + (x_3 \cdot w_5) + bias $$
+  $$ z_{h1} = (0.1 \cdot 0.1) + (-0.3 \cdot 0.7) + (0.3 \cdot -0.4) + 0.1 $$
+  $$ z_{h1} = 0.01 - 0.21 - 0.12 + 0.1 = -0.22 $$
 
----
+- Đầu ra $out_{h1}$:
+  $$ out_{h1} = \sigma(-0.22) = \frac{1}{1 + e^{0.22}} \approx 0.445 $$
 
-### c) z = -1
+**Node $h_2$:**
+- Tổng trọng số $z_{h2}$:
+  $$ z_{h2} = (x_1 \cdot w_2) + (x_2 \cdot w_4) + (x_3 \cdot w_6) + bias $$
+  $$ z_{h2} = (0.1 \cdot 0.2) + (-0.3 \cdot 1.0) + (0.3 \cdot -0.3) + 0.1 $$
+  $$ z_{h2} = 0.02 - 0.3 - 0.09 + 0.1 = -0.27 $$
 
-**Tính σ(-1):**
-```
-e⁻⁽⁻¹⁾ = e¹ ≈ 2.718
+- Đầu ra $out_{h2}$:
+  $$ out_{h2} = \sigma(-0.27) = \frac{1}{1 + e^{0.27}} \approx 0.433 $$
 
-σ(-1) = 1 / (1 + e¹)
-      = 1 / (1 + 2.718)
-      = 1 / 3.718
-      ≈ 0.269
-```
+### BƯỚC 2: Tính toán tại Lớp Đầu Ra (Output Layer)
 
-**Tính σ'(-1):**
-```
-σ'(-1) = 0.269 × (1 - 0.269)
-       = 0.269 × 0.731
-       ≈ 0.197
-```
+**Node $o_1$:**
+- Tổng trọng số $z_{o1}$:
+  $$ z_{o1} = (out_{h1} \cdot w_7) + (out_{h2} \cdot w_9) + bias $$
+  $$ z_{o1} = (0.445 \cdot 0.7) + (0.433 \cdot -0.17) + 0.1 $$
+  $$ z_{o1} = 0.3115 - 0.0736 + 0.1 = 0.3379 $$
 
----
+- Đầu ra thực tế $out_{o1}$:
+  $$ out_{o1} = \sigma(0.3379) \approx 0.584 $$
 
-### d) z = 2
+**Node $o_2$:**
+- Tổng trọng số $z_{o2}$:
+  $$ z_{o2} = (out_{h1} \cdot w_8) + (out_{h2} \cdot w_{10}) + bias $$
+  $$ z_{o2} = (0.445 \cdot 0.2) + (0.433 \cdot 0.41) + 0.1 $$
+  $$ z_{o2} = 0.089 + 0.1775 + 0.1 = 0.3665 $$
 
-**Tính σ(2):**
-```
-e⁻² ≈ 0.135
+- Đầu ra thực tế $out_{o2}$:
+  $$ out_{o2} = \sigma(0.3665) \approx 0.591 $$
 
-σ(2) = 1 / (1 + e⁻²)
-     = 1 / (1 + 0.135)
-     = 1 / 1.135
-     ≈ 0.881
-```
+### BƯỚC 3: Tính Giá trị Lỗi (Error)
 
-**Tính σ'(2):**
-```
-σ'(2) = 0.881 × (1 - 0.881)
-      = 0.881 × 0.119
-      ≈ 0.105
-```
+$$ E = \frac{1}{2} [ (Target_1 - Output_1)^2 + (Target_2 - Output_2)^2 ] $$
+$$ E = \frac{1}{2} [ (1 - 0.584)^2 + (0.5 - 0.591)^2 ] $$
+$$ E = \frac{1}{2} [ (0.416)^2 + (-0.091)^2 ] $$
+$$ E = \frac{1}{2} [ 0.173 + 0.008 ] $$
+$$ E = 0.0905 $$
+
+**✅ Kết quả cho X1: E ≈ 0.0905**
 
 ---
 
-## 2.3. Bảng tổng hợp
+## 2.3. Lời giải chi tiết: Trường hợp X2
 
-| z | e⁻ᶻ | σ(z) | σ'(z) |
-|---|-----|------|-------|
-| 0 | 1 | 0.500 | 0.250 |
-| 1 | 0.368 | 0.731 | 0.197 |
-| -1 | 2.718 | 0.269 | 0.197 |
-| 2 | 0.135 | 0.881 | 0.105 |
+**Input X2:** $(-0.35, -1.5, 0.25)$
+**Target:** $(-0.5, 0.5)$
 
----
+**Bạn hãy tự luyện tập tính toán theo các bước trên. Dưới đây là đáp án để đối chiếu:**
 
-# 3. BÀI TẬP 2: FORWARD PROPAGATION ĐƠN GIẢN
+1. **Lớp Ẩn:**
+   - $z_{h1} = -0.035 - 1.05 - 0.1 + 0.1 = -1.085 \rightarrow out_{h1} \approx 0.252$
+   - $z_{h2} = -0.07 - 1.5 - 0.075 + 0.1 = -1.545 \rightarrow out_{h2} \approx 0.176$
 
-## 3.1. Đề bài
+2. **Lớp Đầu Ra:**
+   - $z_{o1} = (0.252 \cdot 0.7) + (0.176 \cdot -0.17) + 0.1 = 0.246 \rightarrow out_{o1} \approx 0.561$
+   - $z_{o2} = (0.252 \cdot 0.2) + (0.176 \cdot 0.41) + 0.1 = 0.222 \rightarrow out_{o2} \approx 0.555$
 
-Cho mạng nơ-ron 1 node với:
-- Input: x₁ = 0.5, x₂ = 0.3
-- Trọng số: w₁ = 0.4, w₂ = 0.6
-- Bias: b = 0.1
-- Hàm kích hoạt: Sigmoid
+3. **Lỗi E:**
+   - $E = 0.5 \cdot [(-0.5 - 0.561)^2 + (0.5 - 0.555)^2]$
+   - $E = 0.5 \cdot [(-1.061)^2 + (-0.055)^2] \approx 0.564$
 
-**Yêu cầu:** Tính output của node.
+**✅ Kết quả cho X2: E ≈ 0.564**
 
 ---
 
-## 3.2. Sơ đồ mạng
+# 3. BÀI TẬP 2: GIẢI ĐỀ THI SE313 (HK2 19-20)
 
-```
-x₁ = 0.5 ────(w₁=0.4)────┐
-                          ↘
-                           [Σ + b=0.1] ──→ [σ] ──→ y = ?
-                          ↗
-x₂ = 0.3 ────(w₂=0.6)────┘
-```
+![Đề thi SE313](../Bai-tap-tham-khao/SE313_1/SE313_1-1.png)
 
----
+## 3.1. Phân tích sự khác biệt
+So với bài tập 1, bài này có cấu trúc tương tự (3 Input - 2 Hidden - 2 Output) nhưng có **2 điểm khác biệt quan trọng** cần lưu ý:
+1. **Bias = 0.2** (thay vì 0.1).
+2. **Công thức tính lỗi khác:**
+   $$ E_{mean} = \sum \frac{1}{n} (actual - output)^2 $$
+   Với $n=2$ (số nơ-ron output), công thức trở thành:
+   $$ E = \frac{1}{2} \sum (Target - Output)^2 $$
+   (May mắn là nó trùng với công thức SSE chia 2, nhưng cần hiểu rõ bản chất $n$ là số output node).
 
-## 3.3. Lời giải chi tiết
+## 3.2. Lời giải chi tiết: Trường hợp X1
 
-### Bước 1: Tính tổng có trọng số z
+**Input X1:** $(0.1, -0.3, 0.2)$
+**Target O1:** $(0.8, -0.1)$
+**Bias:** $0.2$
 
-**Công thức:**
-```
-z = w₁×x₁ + w₂×x₂ + b
-```
+**Trọng số (từ bảng):**
+- Input -> Hidden:
+  - $w_1=0.1, w_3=0.6, w_5=-0.4$ (vào Node trên - gọi là $h_1$)
+  - $w_2=-0.2, w_4=1.0, w_6=-0.3$ (vào Node dưới - gọi là $h_2$)
+- Hidden -> Output:
+  - $w_7=0.7, w_9=-0.17$ (vào Node trên - gọi là $o_1$)
+  - $w_8=0.25, w_{10}=0.5$ (vào Node dưới - gọi là $o_2$)
 
-**Tính:**
-```
-z = 0.4 × 0.5 + 0.6 × 0.3 + 0.1
-  = 0.20 + 0.18 + 0.1
-  = 0.48
-```
+### BƯỚC 1: Tính toán Lớp Ẩn
 
-### Bước 2: Áp dụng hàm sigmoid
+**Node $h_1$:**
+$$ z_{h1} = (0.1 \cdot 0.1) + (-0.3 \cdot 0.6) + (0.2 \cdot -0.4) + 0.2 $$
+$$ z_{h1} = 0.01 - 0.18 - 0.08 + 0.2 = -0.05 $$
+$$ out_{h1} = \sigma(-0.05) \approx 0.4875 $$
 
-**Công thức:**
-```
-y = σ(z) = 1 / (1 + e⁻ᶻ)
-```
+**Node $h_2$:**
+$$ z_{h2} = (0.1 \cdot -0.2) + (-0.3 \cdot 1.0) + (0.2 \cdot -0.3) + 0.2 $$
+$$ z_{h2} = -0.02 - 0.3 - 0.06 + 0.2 = -0.18 $$
+$$ out_{h2} = \sigma(-0.18) \approx 0.4551 $$
 
-**Tính e⁻⁰·⁴⁸:**
-```
-e⁻⁰·⁴⁸ ≈ 0.619
-```
+### BƯỚC 2: Tính toán Lớp Đầu Ra
 
-**Tính σ(0.48):**
-```
-y = 1 / (1 + 0.619)
-  = 1 / 1.619
-  ≈ 0.618
-```
+**Node $o_1$:**
+$$ z_{o1} = (0.4875 \cdot 0.7) + (0.4551 \cdot -0.17) + 0.2 $$
+$$ z_{o1} = 0.34125 - 0.07737 + 0.2 = 0.4639 $$
+$$ out_{o1} = \sigma(0.4639) \approx 0.614 $$
 
----
+**Node $o_2$:**
+$$ z_{o2} = (0.4875 \cdot 0.25) + (0.4551 \cdot 0.5) + 0.2 $$
+$$ z_{o2} = 0.12188 + 0.22755 + 0.2 = 0.5494 $$
+$$ out_{o2} = \sigma(0.5494) \approx 0.634 $$
 
-## 3.4. Kết quả
+### BƯỚC 3: Tính Lỗi $E_{mean}$
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                        KẾT QUẢ                          │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│   z = 0.48                                             │
-│   y = σ(0.48) ≈ 0.618                                  │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+$$ E = \frac{1}{2} [ (0.8 - 0.614)^2 + (-0.1 - 0.634)^2 ] $$
+$$ E = 0.5 \cdot [ (0.186)^2 + (-0.734)^2 ] $$
+$$ E = 0.5 \cdot [ 0.0346 + 0.5388 ] $$
+$$ E = 0.5 \cdot 0.5734 = 0.2867 $$
+
+**✅ Kết quả: E ≈ 0.2867**
 
 ---
 
-# 4. BÀI TẬP 3: FORWARD PROPAGATION MẠNG 2 LỚP
+# 4. BÀI TẬP TỰ LUYỆN
 
-## 4.1. Đề bài
+> **Lưu ý:** Để làm tốt bài thi, bạn cần tự tay bấm máy tính các bài tập dưới đây.
 
-Cho mạng nơ-ron:
-- **Input layer:** x₁ = 1, x₂ = 0
-- **Hidden layer (1 node h):**
-  - w₁ = 0.5, w₂ = 0.3, b₁ = 0.1
-- **Output layer (1 node y):**
-  - w₃ = 0.7, b₂ = 0.2
-- **Hàm kích hoạt:** Sigmoid
+## Bài 1: Mạng 2-2-1 (Cơ bản)
+Cho mạng có cấu trúc:
+- **Input (2 node):** $x_1=1, x_2=0.5$
+- **Hidden (2 node):**
+  - Node 1: $w=[0.5, 0.1], bias=0.1$
+  - Node 2: $w=[-0.2, 0.8], bias=0.1$
+- **Output (1 node):**
+  - $w=[0.6, -0.5], bias=0.2$
+- **Yêu cầu:** Tính đầu ra mạng và lỗi SSE nếu target = 0.
 
-**Yêu cầu:** Tính output ŷ.
-
----
-
-## 4.2. Sơ đồ mạng
-
-```
-         Hidden              Output
-x₁=1 ──(w₁=0.5)──┐
-                  ↘
-                   [h] ──(w₃=0.7)──→ [y]
-                  ↗         b₁=0.1           b₂=0.2
-x₂=0 ──(w₂=0.3)──┘
-```
+## Bài 2: Vẫn đề thi SE313 - Case X2 (Nâng cao)
+Hãy tính toán cho trường hợp X2 của đề thi trên (xem hình ảnh để lấy số liệu):
+- **Input:** $(-0.45, -1.0, 0.15)$
+- **Target:** $(-0.15, 1.0)$
+- **Đáp án gợi ý:** $E \approx 0.153$ (Hãy tự tính để kiểm chứng!)
 
 ---
-
-## 4.3. Lời giải chi tiết
-
-### BƯỚC 1: Tính Hidden Layer
-
-**Tính z₁:**
-```
-z₁ = w₁×x₁ + w₂×x₂ + b₁
-   = 0.5×1 + 0.3×0 + 0.1
-   = 0.5 + 0 + 0.1
-   = 0.6
-```
-
-**Tính a₁ = σ(z₁):**
-```
-e⁻⁰·⁶ ≈ 0.549
-
-a₁ = 1 / (1 + 0.549)
-   = 1 / 1.549
-   ≈ 0.646
-```
-
-### BƯỚC 2: Tính Output Layer
-
-**Tính z₂:**
-```
-z₂ = w₃×a₁ + b₂
-   = 0.7×0.646 + 0.2
-   = 0.452 + 0.2
-   = 0.652
-```
-
-**Tính ŷ = σ(z₂):**
-```
-e⁻⁰·⁶⁵² ≈ 0.521
-
-ŷ = 1 / (1 + 0.521)
-  = 1 / 1.521
-  ≈ 0.658
-```
-
----
-
-## 4.4. Kết quả
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                        KẾT QUẢ                          │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│   Hidden layer:                                         │
-│   - z₁ = 0.6                                           │
-│   - a₁ = 0.646                                         │
-│                                                         │
-│   Output layer:                                         │
-│   - z₂ = 0.652                                         │
-│   - ŷ = 0.658                                          │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-# 5. BÀI TẬP 4: BACKPROPAGATION 1 VÒNG
-
-## 5.1. Đề bài
-
-*Tiếp tục Bài tập 3*
-
-Cho:
-- y (giá trị thực) = 1
-- Learning rate α = 0.5
-
-**Yêu cầu:** Thực hiện 1 vòng Backpropagation để cập nhật trọng số.
-
----
-
-## 5.2. Thông tin từ Forward Pass
-
-```
-x₁ = 1, x₂ = 0
-z₁ = 0.6, a₁ = 0.646
-z₂ = 0.652, ŷ = 0.658
-y = 1
-```
-
----
-
-## 5.3. Lời giải chi tiết
-
-### BƯỚC 1: Tính sai số tại Output
-
-**Sai số thô:**
-```
-Error = ŷ - y = 0.658 - 1 = -0.342
-```
-
-**Tính delta output (δ₂):**
-```
-δ₂ = (ŷ - y) × σ'(z₂)
-   = (ŷ - y) × ŷ × (1 - ŷ)
-   = (-0.342) × 0.658 × (1 - 0.658)
-   = (-0.342) × 0.658 × 0.342
-   = -0.077
-```
-
-### BƯỚC 2: Cập nhật trọng số Output Layer
-
-**Cập nhật w₃:**
-```
-w₃_mới = w₃_cũ - α × δ₂ × a₁
-       = 0.7 - 0.5 × (-0.077) × 0.646
-       = 0.7 - (-0.025)
-       = 0.7 + 0.025
-       = 0.725
-```
-
-**Cập nhật b₂:**
-```
-b₂_mới = b₂_cũ - α × δ₂
-       = 0.2 - 0.5 × (-0.077)
-       = 0.2 + 0.039
-       = 0.239
-```
-
-### BƯỚC 3: Tính delta Hidden Layer
-
-**Tính δ₁:**
-```
-δ₁ = (w₃ × δ₂) × σ'(z₁)
-   = (w₃ × δ₂) × a₁ × (1 - a₁)
-   = (0.7 × (-0.077)) × 0.646 × (1 - 0.646)
-   = (-0.054) × 0.646 × 0.354
-   = -0.012
-```
-
-### BƯỚC 4: Cập nhật trọng số Hidden Layer
-
-**Cập nhật w₁:**
-```
-w₁_mới = w₁_cũ - α × δ₁ × x₁
-       = 0.5 - 0.5 × (-0.012) × 1
-       = 0.5 + 0.006
-       = 0.506
-```
-
-**Cập nhật w₂:**
-```
-w₂_mới = w₂_cũ - α × δ₁ × x₂
-       = 0.3 - 0.5 × (-0.012) × 0
-       = 0.3 - 0
-       = 0.3  (không đổi vì x₂ = 0)
-```
-
-**Cập nhật b₁:**
-```
-b₁_mới = b₁_cũ - α × δ₁
-       = 0.1 - 0.5 × (-0.012)
-       = 0.1 + 0.006
-       = 0.106
-```
-
----
-
-## 5.4. Bảng tổng hợp kết quả
-
-| Tham số | Giá trị cũ | Giá trị mới | Thay đổi |
-|---------|------------|-------------|----------|
-| w₁ | 0.500 | 0.506 | +0.006 |
-| w₂ | 0.300 | 0.300 | 0 |
-| b₁ | 0.100 | 0.106 | +0.006 |
-| w₃ | 0.700 | 0.725 | +0.025 |
-| b₂ | 0.200 | 0.239 | +0.039 |
-
-**Nhận xét:** 
-- Tất cả trọng số **tăng** (ngoại trừ w₂) vì δ âm và ŷ < y
-- w₂ không đổi vì x₂ = 0
-
----
-
-# 6. BÀI TẬP 5: FORWARD + BACKWARD HOÀN CHỈNH
-
-## 6.1. Đề bài
-
-Cho mạng 1 node:
-- Input: x = 1
-- Trọng số: w = 0.5, b = 0.2
-- Hàm kích hoạt: Sigmoid
-- Giá trị thực: y = 1
-- Learning rate: α = 0.5
-
-**Yêu cầu:** 
-1. Forward propagation
-2. Backpropagation để cập nhật w và b
-
----
-
-## 6.2. Lời giải
-
-### FORWARD PROPAGATION
-
-**Tính z:**
-```
-z = w×x + b = 0.5×1 + 0.2 = 0.7
-```
-
-**Tính ŷ:**
-```
-e⁻⁰·⁷ ≈ 0.497
-
-ŷ = 1/(1 + 0.497) = 1/1.497 ≈ 0.668
-```
-
-### BACKPROPAGATION
-
-**Tính δ:**
-```
-δ = (ŷ - y) × ŷ × (1 - ŷ)
-  = (0.668 - 1) × 0.668 × (1 - 0.668)
-  = (-0.332) × 0.668 × 0.332
-  = -0.074
-```
-
-**Cập nhật w:**
-```
-w_mới = w - α × δ × x
-      = 0.5 - 0.5 × (-0.074) × 1
-      = 0.5 + 0.037
-      = 0.537
-```
-
-**Cập nhật b:**
-```
-b_mới = b - α × δ
-      = 0.2 - 0.5 × (-0.074)
-      = 0.2 + 0.037
-      = 0.237
-```
-
----
-
-## 6.3. Kết quả
-
-| Tham số | Cũ | Mới |
-|---------|-----|-----|
-| w | 0.5 | 0.537 |
-| b | 0.2 | 0.237 |
-
----
-
-# 7. BÀI TẬP TỰ LUYỆN
-
-## 7.1. Dạng Sigmoid
-
-**Bài 1:** Tính σ(0.5) và σ'(0.5).
-
-**Bài 2:** Nếu σ(z) = 0.8, tính σ'(z).
-
-## 7.2. Dạng Forward
-
-**Bài 3:** x = 2, w = 0.3, b = 0.1. Tính output với sigmoid.
-
-**Bài 4:** x₁ = 1, x₂ = 1, w₁ = 0.5, w₂ = 0.5, b = 0. Tính output.
-
-## 7.3. Dạng Backpropagation
-
-**Bài 5:** Cho ŷ = 0.7, y = 1, a = 0.6, α = 0.5. Tính δ và cập nhật w nếu w_cũ = 0.4.
-
-**Bài 6:** Thực hiện 2 vòng forward + backward cho mạng 1 node.
-
----
-
-# 8. BẢNG TRA CỨU VÀ MẸO
-
-## 8.1. Bảng giá trị e⁻ᶻ
-
-| z | e⁻ᶻ |
-|---|-----|
-| 0 | 1.000 |
-| 0.5 | 0.607 |
-| 1 | 0.368 |
-| 1.5 | 0.223 |
-| 2 | 0.135 |
-| -0.5 | 1.649 |
-| -1 | 2.718 |
-| -2 | 7.389 |
-
-## 8.2. Bảng giá trị σ(z)
-
-| z | σ(z) | σ'(z) |
-|---|------|-------|
-| -2 | 0.119 | 0.105 |
-| -1 | 0.269 | 0.197 |
-| -0.5 | 0.378 | 0.235 |
-| 0 | 0.500 | 0.250 |
-| 0.5 | 0.622 | 0.235 |
-| 1 | 0.731 | 0.197 |
-| 2 | 0.881 | 0.105 |
-
-## 8.3. Mẹo tính nhanh
-
-### Tính σ(z) khi biết e⁻ᶻ:
-```
-σ(z) = 1 / (1 + e⁻ᶻ)
-```
-
-### Tính σ'(z) khi biết a = σ(z):
-```
-σ'(z) = a × (1 - a)
-```
-
-### Dấu của δ:
-```
-ŷ > y → δ > 0 → w giảm
-ŷ < y → δ < 0 → w tăng
-```
-
-## 8.4. Quy trình làm bài
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    QUY TRÌNH LÀM BÀI                    │
-├─────────────────────────────────────────────────────────┤
-│  FORWARD:                                               │
-│  1. z = Σwᵢxᵢ + b                                      │
-│  2. a = σ(z)                                           │
-│  (Lặp lại cho mỗi layer từ trái → phải)               │
-├─────────────────────────────────────────────────────────┤
-│  BACKWARD:                                              │
-│  1. δ_output = (ŷ-y) × ŷ × (1-ŷ)                      │
-│  2. δ_hidden = (w×δ_next) × a × (1-a)                  │
-│  3. w := w - α × δ × input                             │
-│  4. b := b - α × δ                                     │
-│  (Lặp lại từ phải → trái)                              │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
 *Hết phần Bài tập ANN - Phương án 2*
