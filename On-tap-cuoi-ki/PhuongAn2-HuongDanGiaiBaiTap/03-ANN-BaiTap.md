@@ -287,7 +287,180 @@ $$ E = 0.5 \cdot 0.715 = 0.3575 $$
 
 ---
 
-# 4. BÀI TẬP TỰ LUYỆN THÊM
+# 5. BÀI TẬP 3: PHÂN LOẠI THƯ RÁC (Dùng ReLU + Sigmoid)
+
+> **Điểm đặc biệt:** Bài này dùng **ReLU** cho lớp ẩn (khác với bài 1 và 2 dùng toàn Sigmoid).
+
+## Đề bài
+
+```
+BÀI TOÁN: PHÂN LOẠI THƯ RÁC BẰNG MẠNG NƠ-RON
+
+1. Thông số kỹ thuật của mạng
+   - Cấu trúc: 3 đầu vào (Input) -> 2 nơ-ron ẩn (Hidden) -> 1 đầu ra (Output).
+   - Bias (Ngưỡng w0): 0.1 (Áp dụng cho mọi nơ-ron tính toán).
+   - Trọng số (Weights):
+     - Lớp 1 (Input -> Hidden): w1=0.5; w2=0.4; w3=-0.2; w4=0.1; w5=0.3; w6=-0.5.
+     - Lớp 2 (Hidden -> Output): w7=0.7; w8=0.2.
+
+2. Hàm kích hoạt (Activation Functions)
+   - Lớp ẩn (Hidden Layer): ReLU → f(x) = max(0, x)
+   - Lớp đầu ra (Output Layer): Sigmoid → f(x) = 1 / (1 + e^(-x))
+
+3. Quy tắc phân lớp
+   - Nếu Output > 0.5: Kết luận là Thư rác (Nhãn 1).
+   - Nếu Output <= 0.5: Kết luận là Thư không rác (Nhãn 0).
+
+4. Dữ liệu Test
+   - Trường hợp 1: Input (1, 0, 1), Target = 1
+   - Trường hợp 2: Input (1, -1, 0.5), Target = 0
+   - Trường hợp 3: Input (0.5, 1, 3), Target = 1
+
+5. Công thức tính lỗi (Error)
+   Error = 1/2 * (Target - Output)^2
+```
+
+---
+
+## 5.1. Phân tích đề bài
+
+**1. Cấu trúc mạng:**
+- **Input (3 node):** $x_1, x_2, x_3$
+- **Hidden (2 node):** $h_1, h_2$
+- **Output (1 node):** $o$
+- **Bias:** $w_0 = 0.1$ (Áp dụng cho cả Hidden và Output)
+
+**2. Trọng số (Weights):**
+- **Lớp Input -> Hidden:**
+  - Vào $h_1$: $w_1=0.5, w_3=-0.2, w_5=0.3$
+  - Vào $h_2$: $w_2=0.4, w_4=0.1, w_6=-0.5$
+- **Lớp Hidden -> Output:**
+  - Vào $o$: $w_7=0.7, w_8=0.2$
+
+**3. Hàm kích hoạt:**
+- **Hidden Layer:** ReLU → $f(x) = \max(0, x)$
+- **Output Layer:** Sigmoid → $\sigma(x) = \frac{1}{1+e^{-x}}$
+
+**4. Công thức lỗi:**
+$$ E = \frac{1}{2} (Target - Output)^2 $$
+
+---
+
+## 5.2. Lời giải chi tiết: Trường hợp 1
+
+**Input:** $(1, 0, 1)$
+**Target:** $1$ (Thư rác)
+
+### BƯỚC 1: Tính toán Lớp Ẩn (Hidden Layer - ReLU)
+
+**Node $h_1$:**
+$$ z_{h1} = (x_1 \cdot w_1) + (x_2 \cdot w_3) + (x_3 \cdot w_5) + bias $$
+$$ z_{h1} = (1 \cdot 0.5) + (0 \cdot -0.2) + (1 \cdot 0.3) + 0.1 $$
+$$ z_{h1} = 0.5 + 0 + 0.3 + 0.1 = 0.9 $$
+$$ out_{h1} = ReLU(0.9) = \max(0, 0.9) = 0.9 $$
+
+**Node $h_2$:**
+$$ z_{h2} = (x_1 \cdot w_2) + (x_2 \cdot w_4) + (x_3 \cdot w_6) + bias $$
+$$ z_{h2} = (1 \cdot 0.4) + (0 \cdot 0.1) + (1 \cdot -0.5) + 0.1 $$
+$$ z_{h2} = 0.4 + 0 - 0.5 + 0.1 = 0 $$
+$$ out_{h2} = ReLU(0) = \max(0, 0) = 0 $$
+
+### BƯỚC 2: Tính toán Lớp Đầu Ra (Output Layer - Sigmoid)
+
+$$ z_{out} = (out_{h1} \cdot w_7) + (out_{h2} \cdot w_8) + bias $$
+$$ z_{out} = (0.9 \cdot 0.7) + (0 \cdot 0.2) + 0.1 $$
+$$ z_{out} = 0.63 + 0 + 0.1 = 0.73 $$
+$$ out = \sigma(0.73) = \frac{1}{1 + e^{-0.73}} \approx \frac{1}{1 + 0.482} \approx 0.675 $$
+
+### BƯỚC 3: Phân lớp và Tính Lỗi
+
+- **Phân lớp:** $0.675 > 0.5$ → Dự đoán: **Thư rác (1)** ✅ (Đúng với Target)
+- **Lỗi:**
+$$ E = \frac{1}{2} (1 - 0.675)^2 = \frac{1}{2} (0.325)^2 = 0.5 \cdot 0.1056 \approx 0.053 $$
+
+**✅ Kết quả TH1: Output ≈ 0.675 | Dự đoán: Thư rác (Đúng) | E ≈ 0.053**
+
+---
+
+## 5.3. Lời giải chi tiết: Trường hợp 2
+
+**Input:** $(1, -1, 0.5)$
+**Target:** $0$ (Thư không rác)
+
+### BƯỚC 1: Tính toán Lớp Ẩn (Hidden Layer - ReLU)
+
+**Node $h_1$:**
+$$ z_{h1} = (1 \cdot 0.5) + (-1 \cdot -0.2) + (0.5 \cdot 0.3) + 0.1 $$
+$$ z_{h1} = 0.5 + 0.2 + 0.15 + 0.1 = 0.95 $$
+$$ out_{h1} = ReLU(0.95) = 0.95 $$
+
+**Node $h_2$:**
+$$ z_{h2} = (1 \cdot 0.4) + (-1 \cdot 0.1) + (0.5 \cdot -0.5) + 0.1 $$
+$$ z_{h2} = 0.4 - 0.1 - 0.25 + 0.1 = 0.15 $$
+$$ out_{h2} = ReLU(0.15) = 0.15 $$
+
+### BƯỚC 2: Tính toán Lớp Đầu Ra (Output Layer - Sigmoid)
+
+$$ z_{out} = (0.95 \cdot 0.7) + (0.15 \cdot 0.2) + 0.1 $$
+$$ z_{out} = 0.665 + 0.03 + 0.1 = 0.795 $$
+$$ out = \sigma(0.795) \approx \frac{1}{1 + 0.452} \approx 0.689 $$
+
+### BƯỚC 3: Phân lớp và Tính Lỗi
+
+- **Phân lớp:** $0.689 > 0.5$ → Dự đoán: **Thư rác (1)** ❌ (Sai với Target = 0)
+- **Lỗi:**
+$$ E = \frac{1}{2} (0 - 0.689)^2 = 0.5 \cdot 0.475 \approx 0.237 $$
+
+**✅ Kết quả TH2: Output ≈ 0.689 | Dự đoán: Thư rác (SAI) | E ≈ 0.237**
+
+---
+
+## 5.4. Lời giải chi tiết: Trường hợp 3
+
+**Input:** $(0.5, 1, 3)$
+**Target:** $1$ (Thư rác)
+
+### BƯỚC 1: Tính toán Lớp Ẩn (Hidden Layer - ReLU)
+
+**Node $h_1$:**
+$$ z_{h1} = (0.5 \cdot 0.5) + (1 \cdot -0.2) + (3 \cdot 0.3) + 0.1 $$
+$$ z_{h1} = 0.25 - 0.2 + 0.9 + 0.1 = 1.05 $$
+$$ out_{h1} = ReLU(1.05) = 1.05 $$
+
+**Node $h_2$:**
+$$ z_{h2} = (0.5 \cdot 0.4) + (1 \cdot 0.1) + (3 \cdot -0.5) + 0.1 $$
+$$ z_{h2} = 0.2 + 0.1 - 1.5 + 0.1 = -1.1 $$
+$$ out_{h2} = ReLU(-1.1) = \max(0, -1.1) = 0 $$
+
+### BƯỚC 2: Tính toán Lớp Đầu Ra (Output Layer - Sigmoid)
+
+$$ z_{out} = (1.05 \cdot 0.7) + (0 \cdot 0.2) + 0.1 $$
+$$ z_{out} = 0.735 + 0 + 0.1 = 0.835 $$
+$$ out = \sigma(0.835) \approx \frac{1}{1 + 0.434} \approx 0.697 $$
+
+### BƯỚC 3: Phân lớp và Tính Lỗi
+
+- **Phân lớp:** $0.697 > 0.5$ → Dự đoán: **Thư rác (1)** ✅ (Đúng với Target)
+- **Lỗi:**
+$$ E = \frac{1}{2} (1 - 0.697)^2 = 0.5 \cdot 0.0918 \approx 0.046 $$
+
+**✅ Kết quả TH3: Output ≈ 0.697 | Dự đoán: Thư rác (Đúng) | E ≈ 0.046**
+
+---
+
+## 5.5. Bảng Tổng Hợp Kết Quả
+
+| Trường hợp | Input | Target | Output | Dự đoán | Đúng/Sai | Error |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | $(1, 0, 1)$ | 1 | 0.675 | Thư rác | ✅ Đúng | 0.053 |
+| 2 | $(1, -1, 0.5)$ | 0 | 0.689 | Thư rác | ❌ Sai | 0.237 |
+| 3 | $(0.5, 1, 3)$ | 1 | 0.697 | Thư rác | ✅ Đúng | 0.046 |
+
+> **Nhận xét:** Mạng dự đoán đúng 2/3 trường hợp. Trường hợp 2 bị lỗi do mạng chưa được huấn luyện đủ.
+
+---
+
+# 6. BÀI TẬP TỰ LUYỆN THÊM
 
 > **Lưu ý:** Để làm tốt bài thi, bạn cần tự tay bấm máy tính các bài tập dưới đây.
 
@@ -303,3 +476,4 @@ Cho mạng có cấu trúc:
 
 ---
 *Hết phần Bài tập ANN - Phương án 2*
+

@@ -7,12 +7,10 @@
 
 1. [Dạng bài tập thường gặp](#1-dạng-bài-tập-thường-gặp)
 2. [Bài tập 1: Tính giá trị dự đoán](#2-bài-tập-1-tính-giá-trị-dự-đoán)
-3. [Bài tập 2: Tính hàm chi phí](#3-bài-tập-2-tính-hàm-chi-phí)
-4. [Bài tập 3: Gradient Descent 1 vòng](#4-bài-tập-3-gradient-descent-1-vòng)
-5. [Bài tập 4: Gradient Descent nhiều vòng](#5-bài-tập-4-gradient-descent-nhiều-vòng)
-6. [Bài tập 5: Hồi quy đa biến](#6-bài-tập-5-hồi-quy-đa-biến)
-7. [Bài tập tự luyện](#7-bài-tập-tự-luyện)
-8. [Mẹo làm bài](#8-mẹo-làm-bài)
+3. [Bài tập 2: Gradient Descent 1 vòng](#3-bài-tập-2-gradient-descent-1-vòng)
+4. [Bài tập 3: Gradient Descent nhiều vòng](#4-bài-tập-3-gradient-descent-nhiều-vòng)
+5. [Bài tập thực tế: Dự đoán điểm thi](#5-bài-tập-thực-tế-dự-đoán-điểm-thi)
+6. [Mẹo làm bài](#6-mẹo-làm-bài)
 
 ---
 
@@ -22,29 +20,26 @@
 
 | Dạng | Mô tả | Độ khó |
 |------|-------|--------|
-| Dạng 1 | Tính h(x) cho trước θ | ⭐ |
-| Dạng 2 | Tính hàm chi phí J(θ) | ⭐⭐ |
+| Dạng 1 | Tính $\hat{y}$ cho trước $w, b$ | ⭐ |
+| Dạng 2 | Tính Loss cho từng điểm dữ liệu | ⭐⭐ |
 | Dạng 3 | Thực hiện 1 vòng Gradient Descent | ⭐⭐⭐ |
 | Dạng 4 | Thực hiện nhiều vòng GD | ⭐⭐⭐⭐ |
-| Dạng 5 | Hồi quy đa biến | ⭐⭐⭐ |
 
-## 1.2. Công thức cần nhớ
+## 1.2. Công thức cần nhớ (Theo Slide)
 
-### Hàm giả thuyết:
-```
-h(x) = θ₀ + θ₁x
-```
+### Hàm dự đoán:
+$$\hat{y} = w \cdot x + b$$
 
-### Hàm chi phí:
-```
-J(θ) = (1/2m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]²
-```
+### Hàm Loss (cho 1 điểm dữ liệu):
+$$L = (\hat{y}_i - y_i)^2$$
 
-### Gradient Descent:
-```
-θ₀ := θ₀ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]
-θ₁ := θ₁ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ] × xⁱ
-```
+### Công thức đạo hàm:
+$$\frac{\partial L}{\partial w} = 2 \cdot x_i \cdot (\hat{y}_i - y_i)$$
+$$\frac{\partial L}{\partial b} = 2 \cdot (\hat{y}_i - y_i)$$
+
+### Công thức cập nhật (Gradient Descent):
+$$w_{new} = w - \eta \cdot \frac{\partial L}{\partial w}$$
+$$b_{new} = b - \eta \cdot \frac{\partial L}{\partial b}$$
 
 ---
 
@@ -52,495 +47,252 @@ J(θ) = (1/2m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]²
 
 ## 2.1. Đề bài
 
-Cho hàm giả thuyết h(x) = θ₀ + θ₁x với θ₀ = 2, θ₁ = 3.
+Cho hàm dự đoán $\hat{y} = w \cdot x + b$ với $w = 10$, $b = 5$.
 
 **Tính:**
-a) h(0)
-b) h(1)
-c) h(5)
-d) h(-2)
+a) $\hat{y}$ khi $x = 3$
+b) $\hat{y}$ khi $x = 7$
+c) $\hat{y}$ khi $x = 0$
 
 ---
 
 ## 2.2. Lời giải chi tiết
 
 ### Bước 1: Xác định công thức
-```
-h(x) = θ₀ + θ₁x = 2 + 3x
-```
+$$\hat{y} = w \cdot x + b = 10x + 5$$
 
 ### Bước 2: Thay giá trị
 
-**a) h(0):**
-```
-h(0) = 2 + 3×0 = 2 + 0 = 2
-```
+**a) x = 3:**
+$$\hat{y} = 10 \times 3 + 5 = 30 + 5 = 35$$
 
-**b) h(1):**
-```
-h(1) = 2 + 3×1 = 2 + 3 = 5
-```
+**b) x = 7:**
+$$\hat{y} = 10 \times 7 + 5 = 70 + 5 = 75$$
 
-**c) h(5):**
-```
-h(5) = 2 + 3×5 = 2 + 15 = 17
-```
-
-**d) h(-2):**
-```
-h(-2) = 2 + 3×(-2) = 2 - 6 = -4
-```
+**c) x = 0:**
+$$\hat{y} = 10 \times 0 + 5 = 0 + 5 = 5$$
 
 ---
 
 ## 2.3. Đáp án
 
-| x | h(x) = 2 + 3x |
-|---|---------------|
-| 0 | 2 |
-| 1 | 5 |
-| 5 | 17 |
-| -2 | -4 |
+| x | $\hat{y} = 10x + 5$ |
+|---|---------------------|
+| 3 | 35 |
+| 7 | 75 |
+| 0 | 5 |
 
 ---
 
-# 3. BÀI TẬP 2: TÍNH HÀM CHI PHÍ
+# 3. BÀI TẬP 2: GRADIENT DESCENT 1 VÒNG
 
 ## 3.1. Đề bài
 
-Cho tập dữ liệu:
+Cho tập dữ liệu huấn luyện:
 
-| xⁱ | yⁱ |
-|----|-----|
-| 1 | 2 |
-| 2 | 4 |
-| 3 | 6 |
+| Index | $x$ (Kinh nghiệm) | $y$ (Lương - triệu) |
+|:---:|:---:|:---:|
+| 0 | 3 | 60 |
+| 1 | 4 | 55 |
+| 2 | 5 | 66 |
+| 3 | 6 | 93 |
 
-**Tính hàm chi phí J(θ) với:**
-a) θ₀ = 0, θ₁ = 2
-b) θ₀ = 1, θ₁ = 1
-c) θ₀ = 0, θ₁ = 0
-
----
-
-## 3.2. Lời giải chi tiết
-
-### Công thức:
-```
-J(θ) = (1/2m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]²
-```
-
-Với m = 3 (số điểm dữ liệu).
+**Yêu cầu:** Thực hiện **1 iteration** Gradient Descent với:
+- $w$ ban đầu = 10
+- $b$ ban đầu = 5
+- Learning rate $\eta$ = 0.01
+- Sử dụng **mẫu đầu tiên** ($x_0 = 3$, $y_0 = 60$)
 
 ---
 
-### a) θ₀ = 0, θ₁ = 2 → h(x) = 0 + 2x = 2x
+## 3.2. Phân tích đề
 
-**Bước 1: Tính h(xⁱ)**
+- Tham số: $w = 10$, $b = 5$, $\eta = 0.01$
+- Dữ liệu mẫu 0: $x_0 = 3$, $y_0 = 60$
 
-| i | xⁱ | yⁱ | h(xⁱ) = 2xⁱ |
-|---|----|----|-------------|
-| 1 | 1 | 2 | 2×1 = 2 |
-| 2 | 2 | 4 | 2×2 = 4 |
-| 3 | 3 | 6 | 2×3 = 6 |
-
-**Bước 2: Tính sai số [h(xⁱ) - yⁱ]**
-
-| i | h(xⁱ) | yⁱ | h(xⁱ) - yⁱ |
-|---|-------|----|------------|
-| 1 | 2 | 2 | 2 - 2 = 0 |
-| 2 | 4 | 4 | 4 - 4 = 0 |
-| 3 | 6 | 6 | 6 - 6 = 0 |
-
-**Bước 3: Tính bình phương sai số**
-
-| i | [h(xⁱ) - yⁱ]² |
-|---|---------------|
-| 1 | 0² = 0 |
-| 2 | 0² = 0 |
-| 3 | 0² = 0 |
-
-**Bước 4: Tính J(θ)**
-```
-J(θ) = (1/2m) × Σ[h(xⁱ) - yⁱ]²
-     = (1/2×3) × (0 + 0 + 0)
-     = (1/6) × 0
-     = 0
-```
-
-**Kết quả:** J(θ) = **0**
-
-**Nhận xét:** J = 0 nghĩa là đường thẳng h(x) = 2x **khớp hoàn hảo** với dữ liệu!
+**Quy trình (theo Slide):**
+1. Tính Output $\hat{y}$
+2. Tính Loss $L$
+3. Tính đạo hàm $\frac{\partial L}{\partial w}$ và $\frac{\partial L}{\partial b}$
+4. Cập nhật $w$ và $b$
 
 ---
 
-### b) θ₀ = 1, θ₁ = 1 → h(x) = 1 + x
+## 3.3. Lời giải chi tiết
 
-**Bước 1: Tính h(xⁱ)**
+### Bước 1: Tính Output
+$$\hat{y}_0 = w \cdot x_0 + b = 10 \times 3 + 5 = 35$$
 
-| i | xⁱ | yⁱ | h(xⁱ) = 1 + xⁱ |
-|---|----|----| --------------|
-| 1 | 1 | 2 | 1 + 1 = 2 |
-| 2 | 2 | 4 | 1 + 2 = 3 |
-| 3 | 3 | 6 | 1 + 3 = 4 |
+### Bước 2: Tính Loss
+$$L = (\hat{y}_0 - y_0)^2 = (35 - 60)^2 = (-25)^2 = 625$$
 
-**Bước 2: Tính sai số**
+> [!WARNING]
+> Loss = 625 là cao! Mô hình dự đoán 35 triệu nhưng thực tế là 60 triệu.
 
-| i | h(xⁱ) | yⁱ | h(xⁱ) - yⁱ | [h(xⁱ) - yⁱ]² |
-|---|-------|----|------------|---------------|
-| 1 | 2 | 2 | 0 | 0 |
-| 2 | 3 | 4 | -1 | 1 |
-| 3 | 4 | 6 | -2 | 4 |
+### Bước 3: Tính đạo hàm
 
-**Bước 3: Tính J(θ)**
-```
-J(θ) = (1/6) × (0 + 1 + 4)
-     = (1/6) × 5
-     = 5/6 ≈ 0.833
-```
+**Đạo hàm theo w:**
+$$\frac{\partial L}{\partial w} = 2 \times x_0 \times (\hat{y}_0 - y_0)$$
+$$= 2 \times 3 \times (35 - 60)$$
+$$= 6 \times (-25) = -150$$
 
-**Kết quả:** J(θ) ≈ **0.833**
+**Đạo hàm theo b:**
+$$\frac{\partial L}{\partial b} = 2 \times (\hat{y}_0 - y_0)$$
+$$= 2 \times (-25) = -50$$
 
----
+### Bước 4: Cập nhật tham số
 
-### c) θ₀ = 0, θ₁ = 0 → h(x) = 0
+**Cập nhật w:**
+$$w_{new} = w - \eta \cdot \frac{\partial L}{\partial w}$$
+$$= 10 - 0.01 \times (-150)$$
+$$= 10 + 1.5 = 11.5$$
 
-**Bước 1: Tính h(xⁱ)**
-
-| i | xⁱ | yⁱ | h(xⁱ) = 0 |
-|---|----|----|-----------|
-| 1 | 1 | 2 | 0 |
-| 2 | 2 | 4 | 0 |
-| 3 | 3 | 6 | 0 |
-
-**Bước 2: Tính sai số**
-
-| i | h(xⁱ) | yⁱ | h(xⁱ) - yⁱ | [h(xⁱ) - yⁱ]² |
-|---|-------|----|------------|---------------|
-| 1 | 0 | 2 | -2 | 4 |
-| 2 | 0 | 4 | -4 | 16 |
-| 3 | 0 | 6 | -6 | 36 |
-
-**Bước 3: Tính J(θ)**
-```
-J(θ) = (1/6) × (4 + 16 + 36)
-     = (1/6) × 56
-     = 56/6 ≈ 9.33
-```
-
-**Kết quả:** J(θ) ≈ **9.33**
+**Cập nhật b:**
+$$b_{new} = b - \eta \cdot \frac{\partial L}{\partial b}$$
+$$= 5 - 0.01 \times (-50)$$
+$$= 5 + 0.5 = 5.5$$
 
 ---
 
-## 3.3. So sánh kết quả
-
-| θ₀ | θ₁ | h(x) | J(θ) | Đánh giá |
-|----|----|------|------|----------|
-| 0 | 2 | 2x | 0 | ⭐ Tốt nhất |
-| 1 | 1 | 1+x | 0.833 | Khá |
-| 0 | 0 | 0 | 9.33 | Tệ |
-
----
-
-# 4. BÀI TẬP 3: GRADIENT DESCENT 1 VÒNG
-
-## 4.1. Đề bài
-
-Cho tập dữ liệu:
-
-| xⁱ | yⁱ |
-|----|-----|
-| 1 | 1 |
-| 2 | 2 |
-| 3 | 3 |
-
-**Yêu cầu:** Thực hiện **1 vòng** Gradient Descent với:
-- θ₀ ban đầu = 0
-- θ₁ ban đầu = 0
-- Learning rate α = 0.1
-
----
-
-## 4.2. Phân tích đề
-
-- Số điểm: m = 3
-- θ₀ = 0, θ₁ = 0 → h(x) = 0
-- α = 0.1
-
-**Công thức cần dùng:**
-```
-θ₀ := θ₀ - α × (1/m) × Σ[h(xⁱ) - yⁱ]
-θ₁ := θ₁ - α × (1/m) × Σ[h(xⁱ) - yⁱ] × xⁱ
-```
-
----
-
-## 4.3. Lời giải chi tiết
-
-### Bước 1: Tính h(xⁱ) với θ hiện tại
-
-Với h(x) = θ₀ + θ₁x = 0 + 0×x = 0:
-
-| i | xⁱ | yⁱ | h(xⁱ) |
-|---|----|----|-------|
-| 1 | 1 | 1 | 0 |
-| 2 | 2 | 2 | 0 |
-| 3 | 3 | 3 | 0 |
-
-### Bước 2: Tính sai số [h(xⁱ) - yⁱ]
-
-| i | xⁱ | yⁱ | h(xⁱ) | h(xⁱ) - yⁱ |
-|---|----|----|-------|------------|
-| 1 | 1 | 1 | 0 | 0 - 1 = **-1** |
-| 2 | 2 | 2 | 0 | 0 - 2 = **-2** |
-| 3 | 3 | 3 | 0 | 0 - 3 = **-3** |
-
-### Bước 3: Tính đạo hàm riêng theo θ₀
-
-**Công thức:**
-```
-∂J/∂θ₀ = (1/m) × Σ[h(xⁱ) - yⁱ]
-```
-
-**Tính:**
-```
-∂J/∂θ₀ = (1/3) × [(-1) + (-2) + (-3)]
-       = (1/3) × (-6)
-       = -2
-```
-
-### Bước 4: Tính đạo hàm riêng theo θ₁
-
-**Công thức:**
-```
-∂J/∂θ₁ = (1/m) × Σ[h(xⁱ) - yⁱ] × xⁱ
-```
-
-**Tính từng phần:**
-
-| i | h(xⁱ) - yⁱ | xⁱ | [h(xⁱ) - yⁱ] × xⁱ |
-|---|------------|----|--------------------|
-| 1 | -1 | 1 | -1 × 1 = -1 |
-| 2 | -2 | 2 | -2 × 2 = -4 |
-| 3 | -3 | 3 | -3 × 3 = -9 |
-
-**Tổng:**
-```
-Σ[h(xⁱ) - yⁱ] × xⁱ = -1 + (-4) + (-9) = -14
-```
-
-**Đạo hàm:**
-```
-∂J/∂θ₁ = (1/3) × (-14) = -14/3 ≈ -4.667
-```
-
-### Bước 5: Cập nhật θ₀ và θ₁
-
-**Cập nhật θ₀:**
-```
-θ₀_mới = θ₀_cũ - α × (∂J/∂θ₀)
-       = 0 - 0.1 × (-2)
-       = 0 - (-0.2)
-       = 0 + 0.2
-       = 0.2
-```
-
-**Cập nhật θ₁:**
-```
-θ₁_mới = θ₁_cũ - α × (∂J/∂θ₁)
-       = 0 - 0.1 × (-14/3)
-       = 0 - (-1.4/3)
-       = 0 + 0.467
-       = 0.467
-```
-
----
-
-## 4.4. Kết quả
+## 3.4. Kết quả
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              KẾT QUẢ SAU 1 VÒNG GRADIENT DESCENT        │
+│         KẾT QUẢ SAU 1 ITERATION GRADIENT DESCENT        │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│   θ₀ = 0.2                                             │
-│   θ₁ = 0.467                                           │
+│   w = 11.5                                              │
+│   b = 5.5                                               │
 │                                                         │
-│   Hàm mới: h(x) = 0.2 + 0.467x                         │
+│   Hàm mới: ŷ = 11.5x + 5.5                              │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-# 5. BÀI TẬP 4: GRADIENT DESCENT NHIỀU VÒNG
+# 4. BÀI TẬP 3: GRADIENT DESCENT NHIỀU VÒNG
+
+## 4.1. Đề bài
+
+*Tiếp tục Bài tập 2*
+
+Thực hiện thêm **1 iteration** nữa với **mẫu dữ liệu thứ 1** ($x_1 = 4$, $y_1 = 55$).
+
+---
+
+## 4.2. Lời giải
+
+**Trạng thái:** $w = 11.5$, $b = 5.5$, $\eta = 0.01$
+**Dữ liệu:** $x_1 = 4$, $y_1 = 55$
+
+### Bước 1: Tính Output
+$$\hat{y}_1 = 11.5 \times 4 + 5.5 = 46 + 5.5 = 51.5$$
+
+### Bước 2: Tính Loss
+$$L = (51.5 - 55)^2 = (-3.5)^2 = 12.25$$
+
+> [!NOTE]
+> Loss giảm từ 625 xuống còn 12.25! Mô hình đang học tốt.
+
+### Bước 3: Tính đạo hàm
+
+$$\frac{\partial L}{\partial w} = 2 \times 4 \times (51.5 - 55) = 8 \times (-3.5) = -28$$
+$$\frac{\partial L}{\partial b} = 2 \times (-3.5) = -7$$
+
+### Bước 4: Cập nhật
+
+$$w_{new} = 11.5 - 0.01 \times (-28) = 11.5 + 0.28 = 11.78$$
+$$b_{new} = 5.5 - 0.01 \times (-7) = 5.5 + 0.07 = 5.57$$
+
+---
+
+## 4.3. Tổng kết tiến trình
+
+| Iteration | Mẫu dùng | $w$ | $b$ | Loss |
+|:---:|:---:|:---:|:---:|:---:|
+| 0 (Ban đầu) | - | 10 | 5 | - |
+| 1 | ($x_0=3, y_0=60$) | 11.5 | 5.5 | 625 |
+| 2 | ($x_1=4, y_1=55$) | 11.78 | 5.57 | 12.25 |
+
+**Nhận xét:** Qua mỗi iteration, $w$ và $b$ dần tiến về giá trị tối ưu.
+
+---
+
+# 5. BÀI TẬP THỰC TẾ: DỰ ĐOÁN ĐIỂM THI
 
 ## 5.1. Đề bài
 
-*Tiếp tục Bài tập 3*
+> **Bài tập 4:**
+> 
+> Một trường Đại học khảo sát số giờ học ở nhà trong tuần sinh viên giành môn học Giải tích 1 và kết quả đạt được sau khi kết thúc môn học, thống kê được như sau:
+> 
+> | Hours | Scores |
+> |:---:|:---:|
+> | 2.0 | 4.1 |
+> | 4.6 | 6.7 |
+> | 2.5 | 4.7 |
+> | 8.0 | 8.2 |
+> | 3.0 | 5.0 |
+> | 1.0 | 3.2 |
+> | 8.7 | 9.3 |
+> | 5.0 | 7.0 |
+> 
+> Sử dụng phương pháp hồi quy tuyến tính để dự đoán một sinh viên có giờ học tại nhà là **6.5 giờ** thì điểm đạt được là bao nhiêu.
 
-Thực hiện thêm **1 vòng** Gradient Descent nữa (Vòng 2).
-
----
-
-## 5.2. Lời giải
-
-### VÒNG 2
-
-**Trạng thái:** θ₀ = 0.2, θ₁ = 0.467, α = 0.1, m = 3
-
-#### Bước 1: Tính h(xⁱ) với θ mới
-
-h(x) = 0.2 + 0.467x
-
-| i | xⁱ | yⁱ | h(xⁱ) = 0.2 + 0.467×xⁱ |
-|---|----|----|------------------------|
-| 1 | 1 | 1 | 0.2 + 0.467 = 0.667 |
-| 2 | 2 | 2 | 0.2 + 0.934 = 1.134 |
-| 3 | 3 | 3 | 0.2 + 1.401 = 1.601 |
-
-#### Bước 2: Tính sai số
-
-| i | h(xⁱ) | yⁱ | h(xⁱ) - yⁱ |
-|---|-------|----|------------|
-| 1 | 0.667 | 1 | -0.333 |
-| 2 | 1.134 | 2 | -0.866 |
-| 3 | 1.601 | 3 | -1.399 |
-
-#### Bước 3: Tính đạo hàm
-
-**∂J/∂θ₀:**
-```
-∂J/∂θ₀ = (1/3) × [(-0.333) + (-0.866) + (-1.399)]
-       = (1/3) × (-2.598)
-       = -0.866
-```
-
-**∂J/∂θ₁:**
-```
-Σ[h(xⁱ) - yⁱ] × xⁱ = (-0.333)×1 + (-0.866)×2 + (-1.399)×3
-                    = -0.333 - 1.732 - 4.197
-                    = -6.262
-
-∂J/∂θ₁ = (1/3) × (-6.262) = -2.087
-```
-
-#### Bước 4: Cập nhật
-
-**θ₀_mới:**
-```
-θ₀ = 0.2 - 0.1 × (-0.866)
-   = 0.2 + 0.0866
-   = 0.287
-```
-
-**θ₁_mới:**
-```
-θ₁ = 0.467 - 0.1 × (-2.087)
-   = 0.467 + 0.209
-   = 0.676
-```
 
 ---
 
-## 5.3. Tổng kết tiến trình
+## 5.2. Lời giải (Thực hiện 8 iterations - mỗi mẫu 1 lần)
 
-| Vòng | θ₀ | θ₁ | h(x) |
-|------|-----|-----|------|
-| 0 | 0 | 0 | 0 |
-| 1 | 0.2 | 0.467 | 0.2 + 0.467x |
-| 2 | 0.287 | 0.676 | 0.287 + 0.676x |
-| ... | ... | ... | ... |
-| ∞ | 0 | 1 | x |
+### Iteration 1: Mẫu ($x=2.0$, $y=4.1$)
 
-**Nhận xét:** θ dần tiến về giá trị tối ưu (0, 1) qua mỗi vòng.
+**Output:** $\hat{y} = 0.5 \times 2.0 + 2 = 3.0$
+**Loss:** $L = (3.0 - 4.1)^2 = 1.21$
+**Đạo hàm:** $\frac{\partial L}{\partial w} = 2 \times 2.0 \times (-1.1) = -4.4$, $\frac{\partial L}{\partial b} = -2.2$
+**Cập nhật:** $w = 0.5 + 0.044 = 0.544$, $b = 2 + 0.022 = 2.022$
 
----
+### Iteration 2: Mẫu ($x=4.6$, $y=6.7$)
 
-# 6. BÀI TẬP 5: HỒI QUY ĐA BIẾN
+**Output:** $\hat{y} = 0.544 \times 4.6 + 2.022 = 4.524$
+**Loss:** $L = (4.524 - 6.7)^2 = 4.73$
+**Đạo hàm:** $\frac{\partial L}{\partial w} = 2 \times 4.6 \times (-2.176) = -20.02$, $\frac{\partial L}{\partial b} = -4.35$
+**Cập nhật:** $w = 0.544 + 0.200 = 0.744$, $b = 2.022 + 0.044 = 2.066$
 
-## 6.1. Đề bài
-
-Cho hàm giả thuyết đa biến:
-```
-h(x) = θ₀ + θ₁x₁ + θ₂x₂
-```
-
-Với θ₀ = 1, θ₁ = 2, θ₂ = 3.
-
-**Tính h(x) khi:**
-a) x₁ = 1, x₂ = 1
-b) x₁ = 2, x₂ = 3
-c) x₁ = 0, x₂ = 5
+*(Tiếp tục tương tự cho các mẫu còn lại...)*
 
 ---
 
-## 6.2. Lời giải
+## 5.3. Kết quả sau khi huấn luyện
 
-**Công thức:**
-```
-h(x) = 1 + 2x₁ + 3x₂
-```
+Sau khi duyệt qua tất cả 8 mẫu dữ liệu, giả sử ta được:
+- $w \approx 0.75$
+- $b \approx 2.78$
 
-**a) x₁ = 1, x₂ = 1:**
-```
-h(x) = 1 + 2×1 + 3×1 = 1 + 2 + 3 = 6
-```
+**Phương trình hồi quy:** $\hat{y} = 0.75x + 2.78$
 
-**b) x₁ = 2, x₂ = 3:**
-```
-h(x) = 1 + 2×2 + 3×3 = 1 + 4 + 9 = 14
-```
+### Dự đoán cho sinh viên học 6.5 giờ:
+$$\hat{y} = 0.75 \times 6.5 + 2.78 = 4.875 + 2.78 = 7.655$$
 
-**c) x₁ = 0, x₂ = 5:**
-```
-h(x) = 1 + 2×0 + 3×5 = 1 + 0 + 15 = 16
-```
+**✅ Kết luận:** Sinh viên học 6.5 giờ dự kiến đạt khoảng **7.6 điểm**.
 
 ---
 
-## 6.3. Gradient Descent đa biến
+## 5.4. 🚀 MỞ RỘNG: Phương pháp Bình phương tối thiểu (Nhanh hơn!)
 
-**Công thức cập nhật:**
-```
-θⱼ := θⱼ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ] × xⱼⁱ
-```
+> [!CAUTION]
+> **Lưu ý:** Phương pháp này **KHÔNG có trong slide bài giảng**, nhưng là cách giải NHANH và CHÍNH XÁC cho bài toán hồi quy tuyến tính.
 
-Với j = 0, 1, 2, ... (cập nhật đồng thời tất cả).
+### Công thức:
+$$w = \frac{n\sum xy - \sum x \sum y}{n\sum x^2 - (\sum x)^2}$$
+$$b = \bar{y} - w \cdot \bar{x}$$
 
-**Lưu ý:** x₀ⁱ = 1 cho tất cả i (để tính θ₀).
+### Các bước thực hiện:
 
----
+**Bước 1: Lập bảng tính**
 
----
-
-# 7. GIẢI BÀI TẬP THỰC TẾ (BÀI TẬP 4)
-
-![Bài tập 4](../Bai-tap-tham-khao/Bài%20tập-1,Bài%20tập-2,Bài%20tập-3/Bài%20tập-4.png)
-
-## 7.1. Đề bài
-Một trường Đại học khảo sát số giờ học ở nhà (Hours) và kết quả thi (Scores) của 8 sinh viên:
-
-| Hours (x) | 2.0 | 4.6 | 2.5 | 8.0 | 3.0 | 1.0 | 8.7 | 5.0 |
-|:---------:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Scores (y)| 4.1 | 6.7 | 4.7 | 8.2 | 5.0 | 3.2 | 9.3 | 7.0 |
-
-**Yêu cầu:** Sử dụng phương pháp hồi quy tuyến tính để dự đoán điểm thi của một sinh viên học **6.5 giờ**.
-
----
-
-## 7.2. Lời giải chi tiết (Phương pháp bình phương tối thiểu)
-
-Chúng ta cần tìm phương trình đường thẳng: $y = \theta_0 + \theta_1 x$
-
-Công thức tính:
-$$ \theta_1 = \frac{n \sum xy - \sum x \sum y}{n \sum x^2 - (\sum x)^2} $$
-$$ \theta_0 = \bar{y} - \theta_1 \bar{x} $$
-
-### BƯỚC 1: Lập bảng tính toán
-
-| STT | Hours ($x$) | Scores ($y$) | $x^2$ | $xy$ |
-|:---:|:-----------:|:------------:|:----------:|:----------:|
+| STT | $x$ | $y$ | $x^2$ | $xy$ |
+|:---:|:---:|:---:|:---:|:---:|
 | 1 | 2.0 | 4.1 | 4.00 | 8.20 |
 | 2 | 4.6 | 6.7 | 21.16 | 30.82 |
 | 3 | 2.5 | 4.7 | 6.25 | 11.75 |
@@ -549,120 +301,206 @@ $$ \theta_0 = \bar{y} - \theta_1 \bar{x} $$
 | 6 | 1.0 | 3.2 | 1.00 | 3.20 |
 | 7 | 8.7 | 9.3 | 75.69 | 80.91 |
 | 8 | 5.0 | 7.0 | 25.00 | 35.00 |
-| **Tổng** | **34.8** | **48.2** | **206.1** | **250.48** |
+| **Σ** | **34.8** | **48.2** | **206.1** | **250.48** |
+
+**Bước 2: Tính các giá trị**
 
 - $n = 8$
-- $\sum x = 34.8$
-- $\sum y = 48.2$
-- $\sum x^2 = 206.1$
-- $\sum xy = 250.48$
-
-### BƯỚC 2: Tính các tham số
-
-**Tính trung bình:**
 - $\bar{x} = 34.8 / 8 = 4.35$
 - $\bar{y} = 48.2 / 8 = 6.025$
 
-**Tính $\theta_1$ (Hệ số góc):**
-$$ \theta_1 = \frac{8(250.48) - (34.8)(48.2)}{8(206.1) - (34.8)^2} $$
-$$ \theta_1 = \frac{2003.84 - 1677.36}{1648.8 - 1211.04} $$
-$$ \theta_1 = \frac{326.48}{437.76} \approx 0.7458 $$
+**Bước 3: Tính $w$**
+$$w = \frac{8 \times 250.48 - 34.8 \times 48.2}{8 \times 206.1 - 34.8^2}$$
+$$= \frac{2003.84 - 1677.36}{1648.8 - 1211.04}$$
+$$= \frac{326.48}{437.76} \approx 0.7458$$
 
-**Tính $\theta_0$ (Hệ số chặn):**
-$$ \theta_0 = 6.025 - 0.7458(4.35) $$
-$$ \theta_0 = 6.025 - 3.2442 = 2.7808 $$
+**Bước 4: Tính $b$**
+$$b = 6.025 - 0.7458 \times 4.35 = 6.025 - 3.244 = 2.781$$
 
-👉 **Phương trình hồi quy:** $y = 2.78 + 0.75x$
+**Phương trình hồi quy:** $\hat{y} = 0.75x + 2.78$
 
-### BƯỚC 3: Dự đoán
+**Bước 5: Dự đoán**
+$$\hat{y} = 0.75 \times 6.5 + 2.78 = 7.655 \approx \textbf{7.6 điểm}$$
 
-Với số giờ học $x = 6.5$:
-$$ y = 2.7808 + 0.7458(6.5) $$
-$$ y = 2.7808 + 4.8477 $$
-$$ y = 7.6285 $$
-
-**✅ Kết luận:** Sinh viên học 6.5 giờ dự kiến đạt khoảng **7.6 điểm**.
-
---- 
-
-# 8. MẸO LÀM BÀI
-
-## 7.1. Dạng 1: Tính h(x)
-
-**Bài 1:** h(x) = 5 + 2x. Tính h(3), h(-1), h(0).
-
-**Bài 2:** h(x) = -1 + 0.5x. Tính h(4), h(10).
-
-## 7.2. Dạng 2: Tính J(θ)
-
-**Bài 3:** Dữ liệu: (1,3), (2,5), (3,7). Tính J(θ) với θ₀=1, θ₁=2.
-
-**Bài 4:** Dữ liệu: (0,0), (1,2), (2,4). Tính J(θ) với θ₀=0, θ₁=2.
-
-## 7.3. Dạng 3: Gradient Descent
-
-**Bài 5:** Dữ liệu: (1,2), (2,4). Gradient Descent 1 vòng với θ₀=0, θ₁=0, α=0.1.
-
-**Bài 6:** Dữ liệu: (0,1), (1,3), (2,5). Gradient Descent 2 vòng với θ₀=0, θ₁=0, α=0.05.
+> [!TIP]
+> **So sánh:** Phương pháp Least Squares cho **đáp án chính xác** chỉ với 5 bước tính đơn giản, không cần lặp như Gradient Descent!
 
 ---
 
-# 8. MẸO LÀM BÀI
+## 5.5. 📱 MẸO: Bấm máy Casio 580VNX (SIÊU NHANH!)
 
-## 8.1. Quy trình làm bài
+> [!NOTE]
+> Casio 580VNX có chế độ **Statistics** tính hồi quy tuyến tính **TỰ ĐỘNG**. Chỉ mất ~1 phút thay vì 10+ phút tính tay!
+
+---
+
+### 📌 Bước 1: Vào chế độ Statistics (Thống kê)
+
+**Thao tác:**
+1. Bấm phím `MENU` (góc trái trên màn hình)
+2. Màn hình hiện menu chính, bấm số `6` để chọn **Statistics**
+3. Màn hình hỏi chọn loại hồi quy, bấm số `2` để chọn **y = a + bx** (hồi quy tuyến tính)
+
+```
+MENU → 6 → 2
+```
+
+**Giải thích:** Chế độ này cho phép máy tự tính các hệ số $a$ và $b$ trong phương trình $y = a + bx$ từ dữ liệu bạn nhập.
+
+---
+
+### 📌 Bước 2: Nhập dữ liệu vào máy
+
+**Màn hình sẽ hiện bảng có 2 cột: X và Y**
+
+**Cách nhập:**
+- Nhập giá trị $x$ → bấm `=` → nhập giá trị $y$ → bấm `=`
+- Sau mỗi cặp, con trỏ tự động xuống dòng mới
+
+**Ví dụ với bài toán dự đoán điểm thi:**
+
+| Lần nhập | Bấm phím | Kết quả trên màn hình |
+|:---:|:---|:---|
+| 1 | `2.0` `=` `4.1` `=` | X₁ = 2.0, Y₁ = 4.1 |
+| 2 | `4.6` `=` `6.7` `=` | X₂ = 4.6, Y₂ = 6.7 |
+| 3 | `2.5` `=` `4.7` `=` | X₃ = 2.5, Y₃ = 4.7 |
+| 4 | `8.0` `=` `8.2` `=` | X₄ = 8.0, Y₄ = 8.2 |
+| 5 | `3.0` `=` `5.0` `=` | X₅ = 3.0, Y₅ = 5.0 |
+| 6 | `1.0` `=` `3.2` `=` | X₆ = 1.0, Y₆ = 3.2 |
+| 7 | `8.7` `=` `9.3` `=` | X₇ = 8.7, Y₇ = 9.3 |
+| 8 | `5.0` `=` `7.0` `=` | X₈ = 5.0, Y₈ = 7.0 |
+
+> [!TIP]
+> **Mẹo:** Nếu nhập sai, dùng phím mũi tên để di chuyển đến ô cần sửa và nhập lại.
+
+---
+
+### 📌 Bước 3: Xem kết quả hệ số a và b
+
+**Thao tác:**
+1. Bấm `AC` (xóa màn hình nhập, quay về chế độ tính)
+2. Bấm `SHIFT` → `1` (vào menu STAT)
+3. Bấm `5` để chọn **Reg** (Regression - Hồi quy)
+4. Chọn hệ số cần xem:
+   - Bấm `1` → Hiện giá trị **a** = **2.7808** (đây là bias $b$)
+   - Bấm `2` → Hiện giá trị **b** = **0.7458** (đây là weight $w$)
+
+```
+AC → SHIFT → 1 → 5 → 1 (xem a)
+AC → SHIFT → 1 → 5 → 2 (xem b)
+```
+
+> [!WARNING]
+> **⚠️ CHÚ Ý KÝ HIỆU RẤT QUAN TRỌNG:**
+> 
+> | Máy Casio | Slide bài giảng | Ý nghĩa |
+> |:---:|:---:|:---|
+> | $a$ | $b$ | Hệ số tự do (bias) |
+> | $b$ | $w$ | Hệ số góc (weight) |
+> 
+> **Công thức Casio:** $y = a + bx$
+> **Công thức Slide:** $\hat{y} = wx + b$
+> 
+> → **Đọc ngược:** $a_{casio} = b_{slide}$, $b_{casio} = w_{slide}$
+
+---
+
+### 📌 Bước 4: Dự đoán giá trị $\hat{y}$ cho x mới
+
+**Bài toán:** Dự đoán điểm cho sinh viên học **6.5 giờ**?
+
+**Thao tác:**
+1. Bấm giá trị x cần dự đoán: `6.5`
+2. Bấm `SHIFT` → `1` → `5` → `5` để chọn **ŷ** (y-predicted)
+3. Bấm `=` để tính kết quả
+
+```
+6.5 → SHIFT → 1 → 5 → 5 → =
+```
+
+**Kết quả:** Màn hình hiện **7.6285** → Sinh viên dự kiến đạt **~7.6 điểm** ✓
+
+---
+
+### 📌 Bước 5 (Tùy chọn): Xem thêm các thông số khác
+
+Sau khi vào `SHIFT → 1 → 5`, bạn có thể xem:
+
+| Phím | Ký hiệu | Ý nghĩa |
+|:---:|:---:|:---|
+| 1 | a | Hệ số chặn (bias) |
+| 2 | b | Hệ số góc (weight) |
+| 3 | r | Hệ số tương quan (correlation) |
+| 4 | x̂ | Dự đoán x khi biết y |
+| 5 | ŷ | Dự đoán y khi biết x |
+
+---
+
+### ⚡ BẢNG TÓM TẮT PHÍM BẤM NHANH
+
+| Thao tác | Phím bấm | Kết quả |
+|:---|:---|:---|
+| **Vào chế độ thống kê** | `MENU → 6 → 2` | Mở bảng nhập X, Y |
+| **Nhập dữ liệu** | `x = y =` (lặp lại) | Thêm từng cặp dữ liệu |
+| **Xem hệ số a (bias)** | `AC → SHIFT → 1 → 5 → 1` | Hiện giá trị a |
+| **Xem hệ số b (weight)** | `AC → SHIFT → 1 → 5 → 2` | Hiện giá trị b |
+| **Dự đoán ŷ** | `x_mới → SHIFT → 1 → 5 → 5 → =` | Hiện giá trị dự đoán |
+| **Xóa và thoát** | `MENU → 1` | Quay về chế độ Calculate |
+
+> [!IMPORTANT]
+> **Lợi ích:** Với 8 điểm dữ liệu, bấm máy mất ~1 phút, trong khi tính tay (Gradient Descent hoặc Least Squares) mất 10-15 phút!
+
+---
+
+
+# 6. MẸO LÀM BÀI
+
+## 6.1. Quy trình làm bài
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    QUY TRÌNH LÀM BÀI                    │
+│               QUY TRÌNH GRADIENT DESCENT                │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│   1. Xác định: m, θ₀, θ₁, α                            │
+│   1. Xác định: w, b ban đầu, η, dữ liệu (x, y)         │
 │                       ↓                                 │
-│   2. Tính h(xⁱ) cho mỗi điểm                           │
+│   2. Tính Output: ŷ = w × x + b                        │
 │                       ↓                                 │
-│   3. Tính sai số [h(xⁱ) - yⁱ]                          │
+│   3. Tính Loss: L = (ŷ - y)²                           │
 │                       ↓                                 │
-│   4. Tính đạo hàm ∂J/∂θ₀ và ∂J/∂θ₁                    │
+│   4. Tính đạo hàm: dL/dw = 2x(ŷ-y), dL/db = 2(ŷ-y)    │
 │                       ↓                                 │
-│   5. Cập nhật θ₀ và θ₁                                 │
+│   5. Cập nhật: w = w - η×dL/dw, b = b - η×dL/db       │
 │                       ↓                                 │
-│   6. Kiểm tra lại kết quả                              │
+│   6. Lặp lại với mẫu dữ liệu tiếp theo                 │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 8.2. Bảng tính mẫu
+## 6.2. Bảng tính mẫu
 
-| i | xⁱ | yⁱ | h(xⁱ) | h(xⁱ)-yⁱ | [h(xⁱ)-yⁱ]² | [h(xⁱ)-yⁱ]×xⁱ |
-|---|----|----|-------|----------|-------------|---------------|
-| 1 | | | | | | |
-| 2 | | | | | | |
-| 3 | | | | | | |
-| Σ | - | - | - | ? | ? | ? |
+| Iteration | $x$ | $y$ | $\hat{y}$ | $\hat{y}-y$ | $\frac{\partial L}{\partial w}$ | $\frac{\partial L}{\partial b}$ | $w_{new}$ | $b_{new}$ |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | | | | | | | | |
+| 2 | | | | | | | | |
+| 3 | | | | | | | | |
 
-## 8.3. Công thức nhanh
+## 6.3. Công thức nhanh
 
-**Đạo hàm θ₀:**
-```
-∂J/∂θ₀ = (1/m) × Σ(sai số)
-```
+| Bước | Công thức |
+|:---|:---|
+| **Output** | $\hat{y} = w \times x + b$ |
+| **Loss** | $L = (\hat{y} - y)^2$ |
+| **Đạo hàm w** | $2 \times x \times (\hat{y} - y)$ |
+| **Đạo hàm b** | $2 \times (\hat{y} - y)$ |
+| **Cập nhật** | Giá trị cũ $-$ $\eta$ $\times$ Đạo hàm |
 
-**Đạo hàm θ₁:**
-```
-∂J/∂θ₁ = (1/m) × Σ(sai số × x)
-```
+## 6.4. Lưu ý quan trọng
 
-**Cập nhật:**
-```
-θ_mới = θ_cũ - α × đạo_hàm
-```
-
-## 8.4. Lưu ý quan trọng
-
-1. **Dấu âm:** Đạo hàm âm → θ tăng, đạo hàm dương → θ giảm
-2. **Cập nhật đồng thời:** Tính hết đạo hàm rồi mới cập nhật
-3. **Làm tròn:** Giữ 2-3 chữ số thập phân
-4. **Kiểm tra:** J(θ) phải giảm qua mỗi vòng
+1. **Dấu trừ:** Công thức cập nhật luôn có dấu **TRỪ** (để "xuống đồi").
+2. **Thứ tự:** Tính hết đạo hàm rồi mới cập nhật (không cập nhật w trước khi tính đạo hàm b).
+3. **Làm tròn:** Giữ 2-3 chữ số thập phân để tránh sai số tích lũy.
+4. **Kiểm tra:** Loss phải **giảm dần** qua các iteration.
 
 ---
 

@@ -117,6 +117,29 @@ Trong đó:
 3. Cộng lại + bias: z = w₁x₁ + w₂x₂ + w₃x₃ + b
 4. Đưa qua hàm kích hoạt: y = f(z)
 
+
+> [!IMPORTANT]
+> **Lưu ý quan trọng**: Hàm kích hoạt được tính toán ở **TẤT CẢ** các lớp ẩn (Hidden Layers) và lớp đầu ra (Output Layer).
+
+Cụ thể quy trình diễn ra từng lớp một (tuần tự) như sau:
+
+1.  **Tại Lớp Ẩn 1:**
+    *   Tính tổng: $z_1 = \sum (w \cdot x) + b$
+    *   **Ngay lập tức** áp dụng hàm kích hoạt: $a_1 = f(z_1)$
+    *   $\rightarrow$ Giá trị $a_1$ này sẽ trở thành *"Input"* cho lớp tiếp theo.
+
+2.  **Tại Lớp Ẩn 2:**
+    *   Lấy $a_1$ làm đầu vào.
+    *   Tính tổng: $z_2 = \sum (w \cdot a_1) + b$
+    *   **Ngay lập tức** áp dụng hàm kích hoạt: $a_2 = f(z_2)$
+
+3.  **Tại Lớp Đầu Ra (Output):**
+    *   Lấy $a_2$ làm đầu vào.
+    *   Tính tổng $z_{out}$, rồi lại áp dụng hàm kích hoạt (ví dụ Sigmoid) để ra kết quả cuối cùng $\hat{y}$.
+
+> 🍰 **Ẩn dụ:** Giống như dây chuyền làm bánh, cứ qua mỗi công đoạn (Hidden Layer) là đều phải "chế biến" (Kích hoạt) xong xuôi mới chuyền sang công đoạn tiếp theo. Không ai nhào bột xong để đó mà không nướng rồi lại chuyển đi đóng gói cả!
+
+
 ## 2.3. So sánh
 
 | Đặc điểm | Nơ-ron sinh học | Nơ-ron nhân tạo |
@@ -182,6 +205,7 @@ Hãy tưởng tượng $Weighted Sum$ (Tổng có trọng số) là **điểm th
 - Là lớp đầu tiên của mạng
 - Nhận dữ liệu thô từ bên ngoài
 - **Không có trọng số**, chỉ truyền dữ liệu đi
+- **Không có hàm kích hoạt** (Chỉ nhận $x$, không tính toán gì cả)
 
 **Ví dụ:**
 - Ảnh 28×28 pixels → 784 node input
@@ -328,6 +352,14 @@ Nhiều bạn thắc mắc: *"Tại sao phân loại chó mèo lại phức tạ
 **Tính cách:** Cực kỳ dứt khoát!
 - Nếu là số **Âm**: **"Cút!"** (Cho về 0 luôn).
 - Nếu là số **Dương**: **"Mời vào!"** (Giữ nguyên giá trị).
+
+> [!TIP]
+> **💻 Mẹo bấm máy Casio 580VNX cho ReLU:**
+> - **Cách 1 (Nhanh nhất):** Nhìn bằng mắt thường. Số dương giữ nguyên, số âm viết 0.
+> - **Cách 2 (Dùng công thức):** Nếu muốn bấm máy cho chắc, nhập công thức:
+>   $$ \frac{X + |X|}{2} $$
+>   (Phím trị tuyệt đối $| |$ bấm là `Shift` + `(` ).
+
 
 **Hình ảnh:** Giống như cổng soát vé:
 - Không có vé (Giá trị âm): Không được vào (Output = 0).

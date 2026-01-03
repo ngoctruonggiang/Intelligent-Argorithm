@@ -1,5 +1,4 @@
 # PHƯƠNG ÁN 1: GIẢI THÍCH ĐƠN GIẢN
-
 # HỒI QUY TUYẾN TÍNH (LINEAR REGRESSION)
 
 ---
@@ -7,1023 +6,635 @@
 ## 📚 MỤC LỤC
 
 1. [Giới thiệu tổng quan](#1-giới-thiệu-tổng-quan)
-2. [Hồi quy tuyến tính là gì?](#2-hồi-quy-tuyến-tính-là-gì)
-3. [Hàm giả thuyết (Hypothesis)](#3-hàm-giả-thuyết-hypothesis)
-4. [Hàm chi phí (Cost Function)](#4-hàm-chi-phí-cost-function)
-5. [Gradient Descent](#5-gradient-descent)
-6. [Ví dụ minh họa từng bước](#6-ví-dụ-minh-họa-từng-bước)
-7. [Phương trình chuẩn (Normal Equation)](#7-phương-trình-chuẩn-normal-equation)
-8. [Hồi quy đa biến](#8-hồi-quy-đa-biến)
-9. [Các vấn đề thường gặp](#9-các-vấn-đề-thường-gặp)
-10. [Tổng kết](#10-tổng-kết)
+2. [Phương trình đường thẳng](#2-phương-trình-đường-thẳng)
+3. [Hàm lỗi (Loss Function)](#3-hàm-lỗi-loss-function)
+4. [Gradient Descent (Thuật toán Xuống đồi)](#4-gradient-descent-thuật-toán-xuống-đồi)
+5. [Quy trình huấn luyện (Pipeline)](#5-quy-trình-huấn-luyện-pipeline)
+6. [Ví dụ tính tay chi tiết](#6-ví-dụ-tính-tay-chi-tiết)
+7. [Bảng tổng hợp & Mẹo thi](#7-bảng-tổng-hợp--mẹo-thi)
 
 ---
 
 # 1. GIỚI THIỆU TỔNG QUAN
 
-## 1.1. Bài toán dự đoán là gì?
+## 1.1. Linear Regression là gì?
 
-Trong cuộc sống, chúng ta thường muốn **dự đoán** một giá trị dựa trên các thông tin đã biết.
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
 
-**Ví dụ thực tế:**
+### Ẩn dụ: "Ông Cò Đất"
 
-| Bài toán          | Đầu vào (Input)             | Đầu ra cần dự đoán (Output) |
-| ----------------- | --------------------------- | --------------------------- |
-| Dự đoán giá nhà   | Diện tích, vị trí, số phòng | Giá bán                     |
-| Dự đoán điểm thi  | Số giờ học, điểm danh       | Điểm số                     |
-| Dự đoán doanh thu | Chi phí quảng cáo           | Doanh thu                   |
-| Dự đoán nhiệt độ  | Tháng, độ ẩm                | Nhiệt độ                    |
+Hãy tưởng tượng bạn là một **"cò đất"** (môi giới bất động sản) lão luyện. Sau nhiều năm kinh nghiệm, bạn có một "linh cảm" rất hay:
 
-**Đặc điểm chung:** Đầu ra là một **giá trị liên tục** (continuous) - nghĩa là có thể là 3.5, 100.25, 1500000, v.v.
+> *"Cứ mỗi mét vuông đất ở khu này thì giá khoảng 40 triệu, cộng thêm 500 triệu tiền vị trí nền."*
 
-## 1.2. Tại sao cần học máy?
+Nếu ai đó hỏi mua mảnh 60m², bạn nhẩm ngay:
+$$ 60 \times 40 + 500 = 2900 \text{ triệu} = 2.9 \text{ tỷ} $$
 
-**Cách truyền thống:** Viết quy tắc thủ công
+**Cái "linh cảm" đó chính là Linear Regression!**
 
-```
-Nếu diện tích < 50m² → giá = 500 triệu
-Nếu 50 ≤ diện tích < 100m² → giá = 1 tỷ
-Nếu diện tích ≥ 100m² → giá = 2 tỷ
-```
-
-**Vấn đề:** Quá đơn giản, không chính xác, không linh hoạt.
-
-**Cách học máy:** Cho máy tự học từ dữ liệu
-
-```
-Đưa cho máy 1000 căn nhà với giá thực tế
-→ Máy tự tìm ra quy luật
-→ Dự đoán giá nhà mới
-```
-
-**Ưu điểm:** Chính xác hơn, tự động, linh hoạt.
-
-## 1.3. Phân loại bài toán học máy
-
-### 1.3.1. Hồi quy (Regression)
-
-- **Đầu ra:** Giá trị liên tục
-- **Ví dụ:** Dự đoán giá nhà (100 triệu, 500 triệu, 1.2 tỷ...)
-
-### 1.3.2. Phân loại (Classification)
-
-- **Đầu ra:** Nhãn rời rạc
-- **Ví dụ:** Phân loại email (Spam / Không spam)
-
-**Hồi quy tuyến tính thuộc loại HỒI QUY** - dự đoán giá trị liên tục.
+Nó là một **quy tắc đơn giản** giúp bạn dự đoán một thứ (giá đất) dựa trên thông tin khác (diện tích).
 
 ---
 
-# 2. HỒI QUY TUYẾN TÍNH LÀ GÌ?
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
 
-## 2.1. Định nghĩa đơn giản
+**Định nghĩa chính thức:**
+> **Hồi quy tuyến tính (Linear Regression)** là một phương pháp thống kê để mô hình hóa mối quan hệ giữa **biến phụ thuộc** (Y - giá trị cần dự đoán) và một hoặc nhiều **biến độc lập** (X - thông tin đầu vào).
 
-**Hồi quy tuyến tính** là phương pháp tìm **đường thẳng** "khớp" nhất với tập dữ liệu, sau đó dùng đường thẳng đó để dự đoán.
+**Đặc điểm:**
+- Biến phụ thuộc Y có **giá trị liên tục** (ví dụ: giá nhà, lương, nhiệt độ).
+- Mối quan hệ giữa X và Y được biểu diễn bằng **phương trình đường thẳng**.
 
-```
-      y (giá nhà)
-      |           *
-   15 |         *   /
-   10 |       *   /     ← Đường thẳng dự đoán
-    5 |     *   /
-    0 |   * /
-      +------------------→ x (diện tích)
-         20  40  60  80
-```
-
-## 2.2. Tại sao gọi là "tuyến tính"?
-
-**"Tuyến tính" = "Đường thẳng"**
-
-Mối quan hệ giữa đầu vào (x) và đầu ra (y) được biểu diễn bằng một **đường thẳng**.
-
-**Phương trình đường thẳng:** y = ax + b
-
-Trong học máy, ta viết: **h(x) = θ₁x + θ₀**
-
-## 2.3. Ví dụ trực quan
-
-**Bài toán:** Bạn bán trà sữa. Bạn nhận thấy:
-
-| Nhiệt độ (°C) | Số ly bán được |
-| ------------- | -------------- |
-| 25            | 50             |
-| 30            | 70             |
-| 35            | 90             |
-| 40            | 110            |
-
-**Đồ thị:**
-
-```
-Số ly |
- 120  |               *
- 100  |           *
-  80  |       *
-  60  |   *
-  40  |
-      +-------------------
-         25  30  35  40  Nhiệt độ
-```
-
-**Nhận xét:** Các điểm gần như thẳng hàng!
-
-→ Có thể dùng **đường thẳng** để mô tả mối quan hệ này.
-
-**Câu hỏi:** Nếu mai trời 32°C, dự đoán bán được bao nhiêu ly?
-
-**Giải pháp:** Tìm phương trình đường thẳng, rồi thay x = 32.
+**Phân loại:**
+| Loại | Số biến độc lập | Ví dụ |
+|:---|:---:|:---|
+| **Simple Linear Regression** | 1 | Dự đoán lương dựa trên số năm kinh nghiệm |
+| **Multiple Linear Regression** | Nhiều | Dự đoán giá nhà dựa trên diện tích, vị trí, số phòng |
 
 ---
 
-# 3. HÀM GIẢ THUYẾT (HYPOTHESIS)
+## 1.2. Tại sao cần Linear Regression?
 
-## 3.1. Khái niệm
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
 
-**Hàm giả thuyết** (Hypothesis Function) là **công thức dự đoán** mà chúng ta xây dựng.
+**Bài toán thực tế:**
+Bạn là quản lý nhân sự. Sếp hỏi: *"Nhân viên mới có 7 năm kinh nghiệm thì nên trả lương bao nhiêu?"*
 
-**Ký hiệu:** h(x) hoặc hθ(x)
+Bạn có bảng dữ liệu cũ:
+| Kinh nghiệm (năm) | Lương (triệu) |
+|:---:|:---:|
+| 3 | 60 |
+| 4 | 55 |
+| 5 | 66 |
+| 6 | 93 |
 
-**Công thức:**
+**Vấn đề:** Bạn không thể tra bảng vì chưa có nhân viên nào 7 năm kinh nghiệm!
 
-```
-h(x) = θ₀ + θ₁x
-```
-
-Trong đó:
-
-- **x**: Đầu vào (feature/input)
-- **h(x)**: Giá trị dự đoán
-- **θ₀** (theta-0): Hệ số chặn (intercept/bias)
-- **θ₁** (theta-1): Hệ số góc (slope/weight)
-
-## 3.2. Ý nghĩa của các tham số
-
-### 3.2.1. θ₀ - Hệ số chặn (Intercept)
-
-- Là giá trị của h(x) khi x = 0
-- Điểm mà đường thẳng cắt trục y
-
-```
-      y
-      |
-   θ₀ |*
-      | \
-      |  \
-      |   \
-      +-------→ x
-```
-
-### 3.2.2. θ₁ - Hệ số góc (Slope)
-
-- Cho biết đường thẳng dốc như thế nào
-- θ₁ > 0: Đường đi lên (x tăng → y tăng)
-- θ₁ < 0: Đường đi xuống (x tăng → y giảm)
-- θ₁ = 0: Đường nằm ngang
-
-```
-θ₁ > 0:     θ₁ < 0:     θ₁ = 0:
-    /           \         ───────
-   /             \
-```
-
-## 3.3. Ví dụ tính toán
-
-**Cho:** h(x) = 2 + 3x
-
-**Tính h(x) khi x = 4:**
-
-```
-h(4) = 2 + 3×4
-     = 2 + 12
-     = 14
-```
-
-**Bảng giá trị:**
-
-| x   | h(x) = 2 + 3x |
-| --- | ------------- |
-| 0   | 2 + 3×0 = 2   |
-| 1   | 2 + 3×1 = 5   |
-| 2   | 2 + 3×2 = 8   |
-| 3   | 2 + 3×3 = 11  |
-| 4   | 2 + 3×4 = 14  |
-
-## 3.4. Vấn đề cốt lõi
-
-**Câu hỏi:** Làm sao tìm được θ₀ và θ₁ tốt nhất?
-
-**Trả lời:** Sử dụng:
-
-1. **Hàm chi phí (Cost Function)** - đo độ sai
-2. **Gradient Descent** - tìm θ tối ưu
+**Giải pháp:** Linear Regression giúp bạn **vẽ một đường thẳng** đi qua gần các điểm dữ liệu nhất, rồi dùng đường thẳng đó để dự đoán lương cho 7 năm kinh nghiệm.
 
 ---
 
-# 4. HÀM CHI PHÍ (COST FUNCTION)
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
 
-## 4.1. Ý tưởng
-
-Trước khi tìm đường thẳng tốt nhất, ta cần cách **đo xem một đường thẳng tệ cỡ nào**.
-
-**Ý tưởng:** So sánh giá trị dự đoán với giá trị thực tế.
-
-```
-      y
-      |
-   12 |         *(thực tế)
-      |        /
-   10 |      ○(dự đoán)
-      |     /
-      |    /
-      +------------→ x
-
-Sai số = |12 - 10| = 2
-```
-
-## 4.2. Định nghĩa hàm chi phí
-
-**Hàm chi phí J(θ)** đo **tổng bình phương sai số** của tất cả các điểm dữ liệu.
-
-**Công thức:**
-
-```
-J(θ₀, θ₁) = (1/2m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]²
-```
-
-Trong đó:
-
-- **m**: Số điểm dữ liệu
-- **xⁱ**: Đầu vào của điểm thứ i
-- **yⁱ**: Giá trị thực của điểm thứ i
-- **h(xⁱ)**: Giá trị dự đoán của điểm thứ i
-- **[h(xⁱ) - yⁱ]**: Sai số của điểm thứ i
-
-## 4.3. Tại sao bình phương?
-
-**Lý do 1:** Loại bỏ dấu âm
-
-- Sai số có thể dương hoặc âm
-- Bình phương luôn dương
-
-**Ví dụ:**
-
-```
-Điểm 1: dự đoán = 10, thực tế = 12 → sai số = -2
-Điểm 2: dự đoán = 8, thực tế = 6 → sai số = +2
-
-Tổng sai số = -2 + 2 = 0  ← SAI! (vì thực tế có sai)
-Tổng bình phương = 4 + 4 = 8  ← ĐÚNG!
-```
-
-**Lý do 2:** Phạt sai số lớn nhiều hơn
-
-- Sai 1 đơn vị: 1² = 1
-- Sai 2 đơn vị: 2² = 4
-- Sai 3 đơn vị: 3² = 9
-
-→ Sai số lớn bị "phạt" nặng hơn.
-
-## 4.4. Tại sao chia 2m?
-
-**Chia m:** Để lấy trung bình (không phụ thuộc vào số lượng dữ liệu)
-
-**Chia 2:** Để thuận tiện khi lấy đạo hàm (số 2 sẽ triệt tiêu)
-
-## 4.5. Ví dụ tính hàm chi phí
-
-**Dữ liệu (m = 3):**
-
-| i   | xⁱ  | yⁱ (thực tế) |
-| --- | --- | ------------ |
-| 1   | 1   | 1            |
-| 2   | 2   | 2            |
-| 3   | 3   | 3            |
-
-**Giả sử:** θ₀ = 0, θ₁ = 1 → h(x) = 0 + 1×x = x
-
-**Tính h(xⁱ) và sai số:**
-
-| i   | xⁱ  | yⁱ  | h(xⁱ) = xⁱ | h(xⁱ) - yⁱ | [h(xⁱ) - yⁱ]² |
-| --- | --- | --- | ---------- | ---------- | ------------- |
-| 1   | 1   | 1   | 1          | 0          | 0             |
-| 2   | 2   | 2   | 2          | 0          | 0             |
-| 3   | 3   | 3   | 3          | 0          | 0             |
-
-**Tính J(θ):**
-
-```
-J(θ) = (1/2×3) × (0 + 0 + 0)
-     = (1/6) × 0
-     = 0
-```
-
-**Nhận xét:** J = 0 nghĩa là đường thẳng "khớp" hoàn hảo với dữ liệu!
+**Ứng dụng trong Machine Learning:**
+- **Dự báo (Forecasting):** Dự đoán doanh thu, giá cổ phiếu, thời tiết.
+- **Đánh giá xu hướng:** Mối quan hệ giữa quảng cáo và doanh số.
+- **Nền tảng cho thuật toán phức tạp hơn:** Linear Regression là "viên gạch đầu tiên" để hiểu Neural Networks.
 
 ---
 
-**Ví dụ khác:** θ₀ = 1, θ₁ = 0 → h(x) = 1
+# 2. PHƯƠNG TRÌNH ĐƯỜNG THẲNG
 
-| i   | xⁱ  | yⁱ  | h(xⁱ) = 1 | h(xⁱ) - yⁱ | [h(xⁱ) - yⁱ]² |
-| --- | --- | --- | --------- | ---------- | ------------- |
-| 1   | 1   | 1   | 1         | 0          | 0             |
-| 2   | 2   | 2   | 1         | -1         | 1             |
-| 3   | 3   | 3   | 1         | -2         | 4             |
+## 2.1. Công thức cơ bản: y = wx + b
 
-**Tính J(θ):**
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
 
-```
-J(θ) = (1/6) × (0 + 1 + 4)
-     = (1/6) × 5
-     = 5/6 ≈ 0.833
-```
+Quay lại ví dụ **ông cò đất**:
+> *"Cứ mỗi mét vuông đất thì giá khoảng **40 triệu** (w), cộng thêm **500 triệu** tiền vị trí nền (b)."*
 
-**Nhận xét:** J > 0 nghĩa là đường thẳng h(x) = 1 không tốt.
+Công thức dự đoán giá:
+$$ \text{Giá đất} = 40 \times \text{Diện tích} + 500 $$
 
-## 4.6. Mục tiêu
-
-**MỤC TIÊU:** Tìm θ₀, θ₁ sao cho J(θ₀, θ₁) **nhỏ nhất** (minimum).
+**Ý nghĩa từng thành phần:**
+| Thành phần | Ký hiệu | Ẩn dụ | Giá trị ví dụ |
+|:---|:---:|:---|:---:|
+| **Đầu vào** | $x$ | Diện tích mảnh đất (m²) | 60 |
+| **Đầu ra (Dự đoán)** | $\hat{y}$ | Giá đất dự đoán (triệu) | 2900 |
+| **Trọng số** | $w$ | Đơn giá mỗi m² | 40 |
+| **Độ lệch** | $b$ | Giá nền cố định (vị trí, hạ tầng) | 500 |
 
 ---
 
-# 5. GRADIENT DESCENT
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
 
-## 5.1. Ý tưởng
+**Công thức chuẩn:**
+$$ \hat{y} = f(x) = w \cdot x + b $$
 
-**Gradient Descent** (Hạ gradient) là phương pháp tìm giá trị nhỏ nhất của hàm chi phí bằng cách "đi xuống dốc".
+**Giải thích ký hiệu:**
+| Ký hiệu | Tên tiếng Anh | Ý nghĩa |
+|:---:|:---|:---|
+| $x$ | Input / Feature | Biến độc lập (đầu vào) |
+| $\hat{y}$ | Prediction / Output | Giá trị dự đoán |
+| $y$ | Target / Label | Giá trị thực tế (nhãn) |
+| $w$ | Weight | Trọng số (Hệ số góc của đường thẳng) |
+| $b$ | Bias | Độ lệch (Hệ số tự do) |
 
-**Ví dụ đời thường:**
+**Ý nghĩa hình học:**
+- $w$ (Weight): Quyết định **độ dốc** của đường thẳng. $w > 0$ → đường đi lên, $w < 0$ → đường đi xuống.
+- $b$ (Bias): Quyết định **vị trí** đường thẳng cắt trục tung (khi $x = 0$).
 
-Tưởng tượng bạn đang đứng trên một ngọn đồi trong sương mù. Bạn muốn đi xuống điểm thấp nhất nhưng không thấy xa được.
+---
 
-**Cách làm:**
+## 2.2. Ví dụ minh họa: Nhiều đường thẳng, nhiều dự đoán
 
-1. Nhìn xung quanh, xác định hướng dốc nhất
-2. Bước một bước về hướng đó
-3. Lặp lại cho đến khi đến đáy
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
 
+**Vấn đề:** Có vô số đường thẳng có thể vẽ qua đám mây điểm dữ liệu. Mỗi đường thẳng cho một kết quả dự đoán khác nhau!
+
+**Hình dung:**
 ```
-     *  ← Bạn đang ở đây
-      \
-       \
-        \
-         \_____* ← Điểm thấp nhất
+   Lương (Y)
+     ^
+   93|                    * (6, 93)
+     |                   /
+   66|             * (5,66)
+     |            /
+   55|       * (4,55)
+     |      /
+   60|   * (3,60)
+     |  /
+     +-------------------------> Kinh nghiệm (X)
+        3   4   5   6   7
 ```
+- **Đường màu đỏ:** $y = 10x + 20$ → Dự đoán lương 7 năm = 90 triệu.
+- **Đường màu xanh:** $y = 15x - 5$ → Dự đoán lương 7 năm = 100 triệu.
+- **Đường màu vàng:** $y = 12x + 10$ → Dự đoán lương 7 năm = 94 triệu.
 
-## 5.2. Công thức Gradient Descent
+**Câu hỏi:** Đường nào là **tốt nhất**?
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Bài toán tối ưu:**
+Với mỗi bộ tham số $(w, b)$ khác nhau, ta có một đường thẳng khác nhau.
+
+**Mục tiêu:** Tìm bộ $(w^*, b^*)$ sao cho đường thẳng đó **xấp xỉ tốt nhất** các điểm dữ liệu đã biết.
+
+**Tiêu chí đánh giá "tốt":** Sử dụng **Hàm lỗi (Loss Function)** - sẽ giải thích ở mục 3.
+
+---
+
+# 3. HÀM LỖI (LOSS FUNCTION)
+
+## 3.1. Loss là gì?
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+### Ẩn dụ: "Thầy giáo chấm điểm"
+
+Hãy tưởng tượng bạn là **thầy giáo chấm bài**:
+- **Đáp án đúng (y):** Lương thực tế của nhân viên (93 triệu).
+- **Bài làm của trò ($\hat{y}$):** Lương mà mô hình dự đoán (77 triệu).
+- **Lỗi (Loss):** Khoảng cách sai lệch = |93 - 77| = 16 triệu.
+
+**Mục tiêu:** Tìm đường thẳng sao cho **tổng các lỗi** của tất cả học sinh (điểm dữ liệu) là **nhỏ nhất**.
+
+**Hình dung:**
+```
+   Lương (Y)
+     ^
+   93|                    * (Thực tế)
+     |                    |
+   77|--------------------o (Dự đoán)
+     |                    | <- Error = 16
+     +-------------------------> Kinh nghiệm (X)
+                          6
+```
+Các đoạn nét đứt đỏ chính là **Error** (Sai số).
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Định nghĩa Loss:**
+Loss (Lỗi) là thước đo **sự chênh lệch** giữa giá trị dự đoán ($\hat{y}$) và giá trị thực tế ($y$).
+
+**Công thức Loss cho MỘT điểm dữ liệu (Squared Error):**
+$$ L = (\hat{y}_i - y_i)^2 = ((w \cdot x_i + b) - y_i)^2 $$
+
+**Tại sao lại bình phương?**
+- Để biến mọi sai số (dương hoặc âm) thành số dương.
+- Để "phạt nặng" những sai số lớn hơn.
+
+**Công thức Loss cho TẤT CẢ điểm dữ liệu (Mean Squared Error - MSE):**
+$$ L_{total} = \frac{1}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2 $$
+
+---
+
+## 3.2. Mục tiêu: Tìm đường thẳng có Loss nhỏ nhất
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+### Ẩn dụ: "Tìm đường đi ngắn nhất"
+
+Hãy tưởng tượng bạn đang chơi trò chơi:
+- Mỗi điểm dữ liệu là một **ngôi nhà**.
+- Đường thẳng bạn vẽ là **một con đường**.
+- Khoảng cách từ nhà đến đường là **sai số**.
+
+**Mục tiêu:** Vẽ con đường sao cho **tổng khoảng cách từ tất cả các ngôi nhà đến đường** là ngắn nhất.
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Bài toán tối ưu hóa:**
+$$ (w^*, b^*) = \arg\min_{w, b} \sum_{i=1}^{n} (\hat{y}_i - y_i)^2 $$
+
+Tìm bộ tham số $(w, b)$ sao cho tổng bình phương sai số là **cực tiểu**.
+
+---
+
+## 3.3. Đồ thị Loss theo b là Parabol
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+Nếu ta **cố định** $w$ và chỉ thay đổi $b$, thì đồ thị Loss phụ thuộc vào $b$ sẽ có hình dạng **chữ U** (Parabol).
+
+**Hình dung:**
+```
+   Loss (L)
+     ^
+     |  \             /
+     |   \           /
+     |    \_________/   <- Đáy = Loss nhỏ nhất
+     |         .
+     |         b*     <- Giá trị b tối ưu
+     +----------------------------> b
+```
+- **Đỉnh của chữ U (Đáy Parabol):** Là vị trí có Loss nhỏ nhất.
+- **Giá trị b tại đỉnh:** Là $b^*$ (b tối ưu).
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Giải thích toán học:**
+Xét hàm Loss theo b (cố định w):
+$$ L(b) = ((wx_i + b) - y_i)^2 $$
+
+Đây là một **hàm bậc 2 theo b**, có dạng:
+$$ L(b) = b^2 + (\text{hệ số b}) + (\text{hằng số}) $$
+
+Hàm bậc 2 luôn có đồ thị là **Parabol**, với một điểm **cực tiểu** duy nhất.
+
+---
+
+# 4. GRADIENT DESCENT (THUẬT TOÁN XUỐNG ĐỒI)
+
+## 4.1. Ý tưởng cốt lõi
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+### Ẩn dụ: "Viên bi lăn xuống đáy thung lũng"
+
+Hãy tưởng tượng bạn thả một **viên bi** từ một vị trí ngẫu nhiên trên sườn núi:
+1. Viên bi sẽ tự động lăn xuống theo hướng **dốc nhất**.
+2. Dần dần, nó sẽ tiến về **đáy thung lũng** (nơi có độ cao thấp nhất).
+3. Khi đến đáy, viên bi dừng lại.
+
+**Áp dụng vào ML:**
+- **Sườn núi:** Đồ thị hàm Loss (hình chữ U).
+- **Vị trí viên bi:** Giá trị hiện tại của $b$ (hoặc $w$).
+- **Đáy thung lũng:** Giá trị $b^*$ (hoặc $w^*$) tối ưu.
+- **Lăn xuống:** Cập nhật $b$ theo hướng giảm Loss.
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Gradient Descent là gì?**
+Là một thuật toán **tối ưu hóa lặp** (iterative optimization) để tìm điểm cực tiểu của hàm Loss.
+
+**Nguyên lý:**
+1. **Tính đạo hàm (Gradient):** Đạo hàm cho biết **hướng tăng nhanh nhất** của hàm số.
+2. **Di chuyển ngược hướng đạo hàm:** Để đi về phía **giảm nhanh nhất** (xuống đồi).
+3. **Lặp lại:** Cho đến khi đạt điểm cực tiểu (đạo hàm ≈ 0).
+
+**Ý nghĩa của đạo hàm:**
+- Đạo hàm **dương** ($\frac{dL}{db} > 0$): Hàm đang **tăng** → Điểm cực tiểu nằm bên **trái** → Di chuyển $b$ sang **trái** (giảm $b$).
+- Đạo hàm **âm** ($\frac{dL}{db} < 0$): Hàm đang **giảm** → Điểm cực tiểu nằm bên **phải** → Di chuyển $b$ sang **phải** (tăng $b$).
+
+---
+
+## 4.2. Công thức đạo hàm
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Công thức đạo hàm riêng (Partial Derivatives):**
+
+Với hàm Loss $L = (\hat{y}_i - y_i)^2 = (wx_i + b - y_i)^2$:
+
+| Tham số | Công thức đạo hàm |
+|:---:|:---|
+| $\frac{\partial L}{\partial w}$ | $2 \cdot x_i \cdot (\hat{y}_i - y_i)$ |
+| $\frac{\partial L}{\partial b}$ | $2 \cdot (\hat{y}_i - y_i)$ |
+
+**Cách nhớ:**
+- Đạo hàm theo $w$: Nhân thêm $x_i$ (vì $w$ đi kèm với $x$).
+- Đạo hàm theo $b$: Không nhân $x_i$ (vì $b$ đứng một mình).
+- Cả hai đều nhân với $2(\hat{y} - y)$ (từ đạo hàm của bình phương).
+
+---
+
+## 4.3. Công thức cập nhật tham số
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+### Ẩn dụ: "Learning Rate = Độ dài bước chân"
+
+Khi viên bi lăn xuống đồi, **tốc độ lăn** rất quan trọng:
+- **Lăn quá nhanh (Learning rate lớn):** Có thể **vượt qua** đáy thung lũng, dao động qua lại mãi.
+- **Lăn quá chậm (Learning rate nhỏ):** Mất **quá nhiều thời gian** để đến đáy.
+- **Tốc độ vừa phải:** Đến đáy nhanh và chính xác.
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
 
 **Công thức cập nhật:**
+$$ w_{new} = w_{old} - \eta \cdot \frac{\partial L}{\partial w} $$
+$$ b_{new} = b_{old} - \eta \cdot \frac{\partial L}{\partial b} $$
 
+**Giải thích:**
+| Ký hiệu | Tên | Ý nghĩa |
+|:---:|:---|:---|
+| $\eta$ | Learning Rate | Tốc độ học (thường nằm trong khoảng 0.001 - 0.1) |
+| $\frac{\partial L}{\partial w}$ | Gradient of w | Hướng và độ lớn cần điều chỉnh $w$ |
+| $\frac{\partial L}{\partial b}$ | Gradient of b | Hướng và độ lớn cần điều chỉnh $b$ |
+
+**Tại sao dấu trừ (-)?**
+- Vì ta đi **ngược hướng** đạo hàm để giảm Loss.
+
+> [!TIP]
+> **Mẹo nhớ:** Công thức cập nhật = "Giá trị cũ - (Tốc độ học × Đạo hàm)"
+
+---
+
+# 5. QUY TRÌNH HUẤN LUYỆN (PIPELINE)
+
+## 5.1. Sơ đồ tổng quát 7 bước
+
+# 🟢 PHẦN 1: HIỂU NHANH BẰNG ẨN DỤ ĐỜI THƯỜNG
+
+**Quy trình huấn luyện như một vòng lặp học tập:**
+1. **Bắt đầu:** Đoán bừa ($w, b$ ngẫu nhiên).
+2. **Làm bài (Dự đoán):** Tính $\hat{y}$ cho một mẫu dữ liệu.
+3. **Chấm điểm (Tính Loss):** So sánh $\hat{y}$ với đáp án đúng $y$.
+4. **Phân tích lỗi (Tính đạo hàm):** Xem sai ở đâu, sai bao nhiêu.
+5. **Sửa sai (Cập nhật $w, b$):** Điều chỉnh để lần sau làm tốt hơn.
+6. **Lặp lại:** Làm bài tiếp với mẫu dữ liệu khác.
+7. **Hoàn thành:** Khi đã duyệt hết tất cả mẫu dữ liệu.
+
+---
+
+# 🔵 PHẦN 2: KIẾN THỨC HỌC THUẬT (ĐỂ ĐI THI)
+
+**Sơ đồ Pipeline:**
 ```
-θⱼ := θⱼ - α × (∂J/∂θⱼ)
-```
-
-Trong đó:
-
-- **θⱼ**: Tham số cần cập nhật
-- **α** (alpha): Tốc độ học (learning rate)
-- **∂J/∂θⱼ**: Đạo hàm riêng của J theo θⱼ (cho biết hướng dốc)
-- **:=**: Gán giá trị mới
-
-## 5.3. Giải thích từng thành phần
-
-### 5.3.1. Đạo hàm (∂J/∂θⱼ)
-
-**Đạo hàm cho biết:**
-
-- Hướng đi lên hay đi xuống
-- Độ dốc như thế nào
-
-```
-Đạo hàm > 0: Đang đi lên → cần giảm θ
-Đạo hàm < 0: Đang đi xuống → cần tăng θ
-Đạo hàm = 0: Đã ở đáy → DỪNG
-```
-
-### 5.3.2. Learning rate (α)
-
-**α cho biết:** Bước đi lớn hay nhỏ
-
-```
-α nhỏ:                    α lớn:
-    *                         *
-     \                         \
-      \                         \
-       \                         +---*  ← Nhảy qua đáy!
-        \_____                      \
-              \_____*                 \_____*
-```
-
-**Chọn α như thế nào?**
-
-- α quá nhỏ: Hội tụ rất chậm
-- α quá lớn: Có thể không hội tụ (nhảy qua đáy)
-- Giá trị thường dùng: 0.01, 0.1, 0.001
-
-### 5.3.3. Tại sao trừ đi?
-
-```
-θ_mới = θ_cũ - α × đạo_hàm
-```
-
-- Nếu đạo hàm > 0: θ_mới < θ_cũ (giảm θ)
-- Nếu đạo hàm < 0: θ_mới > θ_cũ (tăng θ)
-
-→ Luôn đi **ngược hướng** với đạo hàm = đi xuống dốc!
-
-## 5.4. Đạo hàm của hàm chi phí
-
-### Đạo hàm theo θ₀:
-
-```
-∂J/∂θ₀ = (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]
-```
-
-### Đạo hàm theo θ₁:
-
-```
-∂J/∂θ₁ = (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ] × xⁱ
-```
-
-## 5.5. Công thức cập nhật đầy đủ
-
-Lặp lại cho đến khi hội tụ:
-
-```
-θ₀ := θ₀ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ]
-
-θ₁ := θ₁ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ] × xⁱ
-```
-
-**LƯU Ý QUAN TRỌNG:** Phải cập nhật θ₀ và θ₁ **đồng thời** (simultaneous update)!
-
-```
-ĐÚNG:                           SAI:
-temp0 = θ₀ - α × (...)          θ₀ = θ₀ - α × (...)
-temp1 = θ₁ - α × (...)          θ₁ = θ₁ - α × (...)
-θ₀ = temp0                      (Dùng θ₀ mới để tính θ₁)
-θ₁ = temp1
+┌───────────────────────────────────────────────────────────────┐
+│  1. KHỞI TẠO: Chọn w, b ngẫu nhiên                            │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│  2. LẤY MẪU: Lấy (x_i, y_i) từ dữ liệu huấn luyện             │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│  3. TÍNH OUTPUT: ŷ_i = w * x_i + b                            │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│  4. TÍNH LOSS: L = (ŷ_i - y_i)²                               │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│  5. TÍNH ĐẠO HÀM: dL/dw, dL/db                                │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌───────────────────────────────────────────────────────────────┐
+│  6. CẬP NHẬT THAM SỐ: w = w - η*dL/dw, b = b - η*dL/db        │
+└───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │ Còn mẫu dữ liệu?│
+                    └─────────────────┘
+                      │           │
+                    CÓ           KHÔNG
+                      │           │
+                      ▼           ▼
+              Quay lại bước 2   KẾT THÚC
 ```
 
 ---
 
-# 6. VÍ DỤ MINH HỌA TỪNG BƯỚC
-
-## 6.1. Đề bài
-
-**Cho tập dữ liệu (m = 3):**
-
-| xⁱ  | yⁱ  |
-| --- | --- |
-| 1   | 1   |
-| 2   | 2   |
-| 3   | 3   |
-
-**Yêu cầu:** Thực hiện 2 vòng lặp Gradient Descent với:
-
-- θ₀ ban đầu = 0
-- θ₁ ban đầu = 0
-- α = 0.1
-
----
-
-## 6.2. Vòng lặp 1
-
-### Bước 1: Tính h(xⁱ) với θ hiện tại
-
-Với θ₀ = 0, θ₁ = 0:
+## 5.2. Giải thuật chi tiết (Pseudocode)
 
 ```
-h(x) = θ₀ + θ₁x = 0 + 0×x = 0
-```
-
-| i   | xⁱ  | yⁱ  | h(xⁱ) |
-| --- | --- | --- | ----- |
-| 1   | 1   | 1   | 0     |
-| 2   | 2   | 2   | 0     |
-| 3   | 3   | 3   | 0     |
-
-### Bước 2: Tính sai số
-
-| i   | xⁱ  | yⁱ  | h(xⁱ) | h(xⁱ) - yⁱ |
-| --- | --- | --- | ----- | ---------- |
-| 1   | 1   | 1   | 0     | 0 - 1 = -1 |
-| 2   | 2   | 2   | 0     | 0 - 2 = -2 |
-| 3   | 3   | 3   | 0     | 0 - 3 = -3 |
-
-### Bước 3: Tính đạo hàm riêng
-
-**Đạo hàm theo θ₀:**
-
-```
-∂J/∂θ₀ = (1/m) × Σ[h(xⁱ) - yⁱ]
-       = (1/3) × [(-1) + (-2) + (-3)]
-       = (1/3) × (-6)
-       = -2
-```
-
-**Đạo hàm theo θ₁:**
-
-```
-∂J/∂θ₁ = (1/m) × Σ[h(xⁱ) - yⁱ] × xⁱ
-       = (1/3) × [(-1)×1 + (-2)×2 + (-3)×3]
-       = (1/3) × [-1 + (-4) + (-9)]
-       = (1/3) × (-14)
-       = -14/3 ≈ -4.667
-```
-
-### Bước 4: Cập nhật θ
-
-```
-θ₀_mới = θ₀_cũ - α × (∂J/∂θ₀)
-       = 0 - 0.1 × (-2)
-       = 0 + 0.2
-       = 0.2
-
-θ₁_mới = θ₁_cũ - α × (∂J/∂θ₁)
-       = 0 - 0.1 × (-14/3)
-       = 0 + 1.4/3
-       = 0.467 (làm tròn)
-```
-
-**Kết quả sau Vòng 1:** θ₀ = 0.2, θ₁ = 0.467
-
----
-
-## 6.3. Vòng lặp 2
-
-### Bước 1: Tính h(xⁱ) với θ mới
-
-Với θ₀ = 0.2, θ₁ = 0.467:
-
-```
-h(x) = 0.2 + 0.467x
-```
-
-| i   | xⁱ  | yⁱ  | h(xⁱ) = 0.2 + 0.467xⁱ |
-| --- | --- | --- | --------------------- |
-| 1   | 1   | 1   | 0.2 + 0.467×1 = 0.667 |
-| 2   | 2   | 2   | 0.2 + 0.467×2 = 1.134 |
-| 3   | 3   | 3   | 0.2 + 0.467×3 = 1.601 |
-
-### Bước 2: Tính sai số
-
-| i   | xⁱ  | yⁱ  | h(xⁱ) | h(xⁱ) - yⁱ |
-| --- | --- | --- | ----- | ---------- |
-| 1   | 1   | 1   | 0.667 | -0.333     |
-| 2   | 2   | 2   | 1.134 | -0.866     |
-| 3   | 3   | 3   | 1.601 | -1.399     |
-
-### Bước 3: Tính đạo hàm riêng
-
-**Đạo hàm theo θ₀:**
-
-```
-∂J/∂θ₀ = (1/3) × [(-0.333) + (-0.866) + (-1.399)]
-       = (1/3) × (-2.598)
-       = -0.866
-```
-
-**Đạo hàm theo θ₁:**
-
-```
-∂J/∂θ₁ = (1/3) × [(-0.333)×1 + (-0.866)×2 + (-1.399)×3]
-       = (1/3) × [-0.333 + (-1.732) + (-4.197)]
-       = (1/3) × (-6.262)
-       = -2.087
-```
-
-### Bước 4: Cập nhật θ
-
-```
-θ₀_mới = 0.2 - 0.1 × (-0.866)
-       = 0.2 + 0.0866
-       = 0.287
-
-θ₁_mới = 0.467 - 0.1 × (-2.087)
-       = 0.467 + 0.209
-       = 0.676
-```
-
-**Kết quả sau Vòng 2:** θ₀ = 0.287, θ₁ = 0.676
-
----
-
-## 6.4. Tổng kết quá trình học
-
-| Vòng        | θ₀    | θ₁    | h(x)           |
-| ----------- | ----- | ----- | -------------- |
-| 0 (ban đầu) | 0     | 0     | 0              |
-| 1           | 0.2   | 0.467 | 0.2 + 0.467x   |
-| 2           | 0.287 | 0.676 | 0.287 + 0.676x |
-| ...         | ...   | ...   | ...            |
-| Cuối cùng   | 0     | 1     | x              |
-
-**Nhận xét:** Qua mỗi vòng, θ₀ và θ₁ dần tiến về giá trị tối ưu (θ₀ = 0, θ₁ = 1).
-
----
-
-## 6.5. Kiểm tra kết quả
-
-**Đường thẳng lý tưởng:** h(x) = x (vì y = x trong dữ liệu)
-
-| x   | y thực | h(x) = x |
-| --- | ------ | -------- |
-| 1   | 1      | 1 ✓      |
-| 2   | 2      | 2 ✓      |
-| 3   | 3      | 3 ✓      |
-
-**Kết luận:** Nếu chạy đủ vòng lặp, θ₀ → 0 và θ₁ → 1.
-
----
-
-# 7. PHƯƠNG TRÌNH CHUẨN (NORMAL EQUATION)
-
-## 7.1. Ý tưởng
-
-Thay vì dùng Gradient Descent (lặp nhiều lần), có thể tính **trực tiếp** θ tối ưu bằng công thức toán học.
-
-## 7.2. Công thức
-
-```
-θ = (XᵀX)⁻¹ × Xᵀy
-```
-
-Trong đó:
-
-- **X**: Ma trận đầu vào (thêm cột 1 cho θ₀)
-- **Xᵀ**: Ma trận chuyển vị của X
-- **(XᵀX)⁻¹**: Ma trận nghịch đảo của XᵀX
-- **y**: Vector đầu ra
-
-## 7.3. Ví dụ
-
-**Dữ liệu:**
-
-| x   | y   |
-| --- | --- |
-| 1   | 1   |
-| 2   | 2   |
-| 3   | 3   |
-
-**Bước 1: Xây dựng ma trận X (thêm cột 1)**
-
-```
-X = | 1  1 |
-    | 1  2 |
-    | 1  3 |
-```
-
-**Bước 2: Xây dựng vector y**
-
-```
-y = | 1 |
-    | 2 |
-    | 3 |
-```
-
-**Bước 3: Tính θ = (XᵀX)⁻¹ × Xᵀy**
-
-(Các bước tính toán chi tiết - thường dùng máy tính)
-
-**Kết quả:** θ₀ = 0, θ₁ = 1
-
-## 7.4. So sánh Gradient Descent và Normal Equation
-
-| Tiêu chí          | Gradient Descent | Normal Equation |
-| ----------------- | ---------------- | --------------- |
-| Cần chọn α        | Có               | Không           |
-| Cần lặp nhiều lần | Có               | Không           |
-| Tốc độ với n nhỏ  | Chậm hơn         | Nhanh hơn       |
-| Tốc độ với n lớn  | Nhanh hơn        | Chậm hơn        |
-| Độ phức tạp       | O(kn²)           | O(n³)           |
-
-**Khi nào dùng gì?**
-
-- **n < 10,000**: Normal Equation
-- **n > 10,000**: Gradient Descent
-
----
-
-# 8. HỒI QUY ĐA BIẾN
-
-## 8.1. Khái niệm
-
-Khi có **nhiều đầu vào** (features), ta gọi là **hồi quy đa biến** (Multiple Linear Regression).
-
-**Ví dụ:** Dự đoán giá nhà dựa trên:
-
-- x₁: Diện tích
-- x₂: Số phòng ngủ
-- x₃: Số tầng
-- x₄: Tuổi nhà
-
-## 8.2. Công thức
-
-```
-h(x) = θ₀ + θ₁x₁ + θ₂x₂ + θ₃x₃ + ... + θₙxₙ
-```
-
-Hoặc dạng vector:
-
-```
-h(x) = θᵀx
-```
-
-## 8.3. Gradient Descent cho đa biến
-
-```
-θⱼ := θⱼ - α × (1/m) × Σᵢ₌₁ᵐ [h(xⁱ) - yⁱ] × xⱼⁱ
-```
-
-Với j = 0, 1, 2, ..., n (cập nhật đồng thời tất cả θ)
-
-## 8.4. Feature Scaling
-
-**Vấn đề:** Các feature có phạm vi khác nhau
-
-```
-x₁ (diện tích): 50 - 500 m²
-x₂ (số phòng): 1 - 5 phòng
-```
-
-→ Gradient Descent hội tụ chậm.
-
-**Giải pháp:** Chuẩn hóa về cùng phạm vi
-
-```
-xⱼ_mới = (xⱼ - μⱼ) / sⱼ
-```
-
-Trong đó:
-
-- μⱼ: Trung bình của feature j
-- sⱼ: Độ lệch chuẩn (hoặc max - min)
-
----
-
-# 9. CÁC VẤN ĐỀ THƯỜNG GẶP
-
-## 9.1. Gradient Descent không hội tụ
-
-**Nguyên nhân:**
-
-1. α quá lớn
-2. Bug trong code
-3. Feature chưa được scale
-
-**Giải pháp:**
-
-1. Giảm α
-2. Kiểm tra lại công thức
-3. Áp dụng feature scaling
-
-## 9.2. Underfitting (Thiếu khớp)
-
-**Triệu chứng:** Đường thẳng không khớp tốt với dữ liệu
-
-**Nguyên nhân:** Mô hình quá đơn giản
-
-**Giải pháp:** Thêm features hoặc dùng mô hình phức tạp hơn
-
-## 9.3. Overfitting (Quá khớp)
-
-**Triệu chứng:** Khớp tốt với dữ liệu huấn luyện nhưng dự đoán kém trên dữ liệu mới
-
-**Nguyên nhân:** Mô hình quá phức tạp
-
-**Giải pháp:**
-
-- Dùng regularization
-- Thu thập thêm dữ liệu
-- Giảm số features
-
----
-
-# 10. TỔNG KẾT
-
-## 10.1. Những điều cần nhớ
-
-1. **Hồi quy tuyến tính** dự đoán giá trị liên tục bằng đường thẳng
-
-2. **Hàm giả thuyết:**
-
-   ```
-   h(x) = θ₀ + θ₁x
-   ```
-
-3. **Hàm chi phí (MSE):**
-
-   ```
-   J(θ) = (1/2m) × Σ[h(xⁱ) - yⁱ]²
-   ```
-
-4. **Gradient Descent:**
-
-   ```
-   θⱼ := θⱼ - α × (∂J/∂θⱼ)
-   ```
-
-5. **Đạo hàm:**
-   ```
-   ∂J/∂θ₀ = (1/m) × Σ[h(xⁱ) - yⁱ]
-   ∂J/∂θ₁ = (1/m) × Σ[h(xⁱ) - yⁱ] × xⁱ
-   ```
-
-## 10.2. Quy trình làm bài
-
-1. **Xác định** h(x) = θ₀ + θ₁x
-2. **Tính** h(xⁱ) cho mỗi điểm
-3. **Tính sai số** [h(xⁱ) - yⁱ]
-4. **Tính đạo hàm** riêng theo θ₀ và θ₁
-5. **Cập nhật** θ₀ và θ₁
-6. **Lặp lại** cho đến khi hội tụ hoặc đủ vòng
-
-## 10.3. Bài tập tự luyện
-
-**Bài 1:** Cho dữ liệu:
-| x | y |
-|---|---|
-| 1 | 2 |
-| 2 | 4 |
-| 3 | 6 |
-
-Thực hiện 1 vòng Gradient Descent với θ₀ = 0, θ₁ = 0, α = 0.1.
-
-**Bài 2:** Với h(x) = 3 + 2x, tính J(θ) khi dữ liệu là:
-| x | y |
-|---|---|
-| 1 | 5 |
-| 2 | 7 |
-| 3 | 9 |
-
----
-
-# 11. CÔNG THỨC TÍNH TRỰC TIẾP θ (QUAN TRỌNG CHO THI!)
-
-> **⚠️ QUAN TRỌNG:** Đề thi thường yêu cầu tính θ₀, θ₁ rồi dự đoán, **KHÔNG phải lặp Gradient Descent nhiều vòng**. Phần này là **BẮT BUỘC phải biết**!
-
-## 11.1. Công thức Least Squares (Bình phương tối thiểu)
-
-### Công thức tính θ₁ (hệ số góc):
-
-$$\theta_1 = \frac{n \sum x_i y_i - \sum x_i \sum y_i}{n \sum x_i^2 - (\sum x_i)^2}$$
-
-### Công thức tính θ₀ (hệ số chặn):
-
-$$\theta_0 = \bar{y} - \theta_1 \bar{x} = \frac{\sum y_i - \theta_1 \sum x_i}{n}$$
-
-Trong đó:
-
-- **n**: Số điểm dữ liệu
-- **x̄**: Trung bình của x
-- **ȳ**: Trung bình của y
-
-## 11.2. Công thức thay thế (dễ nhớ hơn)
-
-$$\theta_1 = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{\sum (x_i - \bar{x})^2}$$
-
-$$\theta_0 = \bar{y} - \theta_1 \times \bar{x}$$
-
----
-
-# 12. BÀI MẪU: GIẢI ĐỀ THI THỰC TẾ (Linear Regression)
-
-## 📝 ĐỀ BÀI (Giống Bài tập 4)
-
-Một trường Đại học khảo sát số giờ học ở nhà và điểm đạt được:
-
-| Hours (x) | Scores (y) |
-| :-------: | :--------: |
-|    2.0    |    4.1     |
-|    4.6    |    6.7     |
-|    2.5    |    4.7     |
-|    8.0    |    8.2     |
-|    3.0    |    5.0     |
-|    1.0    |    3.2     |
-|    8.7    |    9.3     |
-|    5.0    |    7.0     |
-
-**Yêu cầu:** Dùng hồi quy tuyến tính dự đoán điểm khi x = 6.5 giờ.
-
----
-
-## 🔷 GIẢI CHI TIẾT
-
-### Bước 1: Lập bảng tính các tổng cần thiết
-
-|   i   |    xᵢ    |    yᵢ    |    xᵢ²     |    xᵢyᵢ    |
-| :---: | :------: | :------: | :--------: | :--------: |
-|   1   |   2.0    |   4.1    |    4.00    |    8.20    |
-|   2   |   4.6    |   6.7    |   21.16    |   30.82    |
-|   3   |   2.5    |   4.7    |    6.25    |   11.75    |
-|   4   |   8.0    |   8.2    |   64.00    |   65.60    |
-|   5   |   3.0    |   5.0    |    9.00    |   15.00    |
-|   6   |   1.0    |   3.2    |    1.00    |    3.20    |
-|   7   |   8.7    |   9.3    |   75.69    |   80.91    |
-|   8   |   5.0    |   7.0    |   25.00    |   35.00    |
-| **Σ** | **34.8** | **48.2** | **206.10** | **250.48** |
-
-**Số điểm:** n = 8
-
-### Bước 2: Tính θ₁
-
-$$\theta_1 = \frac{n \sum x_i y_i - \sum x_i \sum y_i}{n \sum x_i^2 - (\sum x_i)^2}$$
-
-```
-θ₁ = [8 × 250.48 - 34.8 × 48.2] / [8 × 206.10 - (34.8)²]
-   = [2003.84 - 1677.36] / [1648.80 - 1211.04]
-   = 326.48 / 437.76
-   = 0.7457 ≈ 0.75
-```
-
-### Bước 3: Tính θ₀
-
-```
-x̄ = Σxᵢ / n = 34.8 / 8 = 4.35
-ȳ = Σyᵢ / n = 48.2 / 8 = 6.025
-
-θ₀ = ȳ - θ₁ × x̄
-   = 6.025 - 0.7457 × 4.35
-   = 6.025 - 3.244
-   = 2.781 ≈ 2.78
-```
-
-### Bước 4: Viết phương trình hồi quy
-
-$$h(x) = 2.78 + 0.75x$$
-
-### Bước 5: Dự đoán khi x = 6.5
-
-```
-h(6.5) = 2.78 + 0.75 × 6.5
-       = 2.78 + 4.875
-       = 7.655 ≈ 7.66
-```
-
-### ✅ KẾT LUẬN
-
-Sinh viên học 6.5 giờ tại nhà dự đoán đạt **khoảng 7.66 điểm**.
-
----
-
-## 📋 TEMPLATE LÀM BÀI (Copy để dùng)
-
-```
-BƯỚC 1: Lập bảng
-┌────┬────────┬────────┬────────┬────────┐
-│ i  │  xᵢ   │  yᵢ   │  xᵢ²  │ xᵢyᵢ  │
-├────┼────────┼────────┼────────┼────────┤
-│ 1  │        │        │        │        │
-│ 2  │        │        │        │        │
-│... │        │        │        │        │
-├────┼────────┼────────┼────────┼────────┤
-│ Σ  │        │        │        │        │
-└────┴────────┴────────┴────────┴────────┘
-
-n = _____
-
-BƯỚC 2: Tính θ₁
-θ₁ = [n×Σxᵢyᵢ - Σxᵢ×Σyᵢ] / [n×Σxᵢ² - (Σxᵢ)²]
-   = [___ × ___ - ___ × ___] / [___ × ___ - (___)²]
-   = [___ - ___] / [___ - ___]
-   = ___ / ___
-   = ___
-
-BƯỚC 3: Tính θ₀
-x̄ = Σxᵢ / n = ___ / ___ = ___
-ȳ = Σyᵢ / n = ___ / ___ = ___
-
-θ₀ = ȳ - θ₁ × x̄
-   = ___ - ___ × ___
-   = ___
-
-BƯỚC 4: Phương trình hồi quy
-h(x) = ___ + ___x
-
-BƯỚC 5: Dự đoán
-h(___) = ___ + ___ × ___
-       = ___
+ALGORITHM Linear_Regression_Training:
+
+INPUT:
+    - Dữ liệu huấn luyện: {(x_1, y_1), (x_2, y_2), ..., (x_n, y_n)}
+    - Tốc độ học: η
+
+OUTPUT:
+    - Tham số tối ưu: w*, b*
+
+STEPS:
+    1. Khởi tạo w, b ngẫu nhiên (ví dụ: w = 10, b = 5)
+    2. FOR mỗi mẫu (x_i, y_i) trong dữ liệu:
+        (a) Tính output:     ŷ_i = w * x_i + b
+        (b) Tính loss:       L = (ŷ_i - y_i)²
+        (c) Tính đạo hàm:    dL/dw = 2 * x_i * (ŷ_i - y_i)
+                             dL/db = 2 * (ŷ_i - y_i)
+        (d) Cập nhật:        w = w - η * dL/dw
+                             b = b - η * dL/db
+    3. RETURN w, b
 ```
 
 ---
 
-# 13. SO SÁNH 2 PHƯƠNG PHÁP
+# 6. VÍ DỤ TÍNH TAY CHI TIẾT
 
-| Tiêu chí         | Gradient Descent      | Công thức trực tiếp |
-| ---------------- | --------------------- | ------------------- |
-| **Dùng khi nào** | Lặp nhiều vòng (code) | Tính tay 1 lần      |
-| **Đề thi**       | Ít gặp (1-2 vòng)     | **THƯỜNG GẶP**      |
-| **Độ phức tạp**  | O(iterations × n)     | O(n)                |
-| **Cần chọn α**   | Có                    | Không               |
+## 6.1. Dữ liệu bài toán
 
-**⚠️ TRONG ĐỀ THI:** 99% sẽ dùng **công thức trực tiếp**!
+**Bài toán:** Dự đoán lương nhân viên dựa trên số năm kinh nghiệm.
+
+**Dữ liệu huấn luyện:**
+| Index | $x$ (Kinh nghiệm) | $y$ (Lương - triệu VND) |
+|:---:|:---:|:---:|
+| 0 | 3 | 60 |
+| 1 | 4 | 55 |
+| 2 | 5 | 66 |
+| 3 | 6 | 93 |
+
+**Tham số ban đầu:**
+- $w = 10$
+- $b = 5$
+- $\eta = 0.01$
 
 ---
 
-_Hết phần Linear Regression - Phương án 1: Giải thích đơn giản_
+## 6.2. Iteration 1: Mẫu (3, 60)
 
-**Bài 3:** Giải thích tại sao learning rate α quá lớn có thể khiến Gradient Descent không hội tụ?
+**Dữ liệu:** $x_0 = 3$, $y_0 = 60$
+
+**Bước (a): Tính Output**
+$$ \hat{y}_0 = w \cdot x_0 + b = 10 \times 3 + 5 = 35 $$
+
+**Bước (b): Tính Loss**
+$$ L = (\hat{y}_0 - y_0)^2 = (35 - 60)^2 = (-25)^2 = 625 $$
+
+> [!WARNING]
+> Loss = 625 là rất cao! Mô hình dự đoán quá thấp so với thực tế (35 triệu vs 60 triệu).
+
+**Bước (c): Tính Đạo hàm**
+$$ \frac{\partial L}{\partial w} = 2 \times x_0 \times (\hat{y}_0 - y_0) = 2 \times 3 \times (35 - 60) = 6 \times (-25) = -150 $$
+$$ \frac{\partial L}{\partial b} = 2 \times (\hat{y}_0 - y_0) = 2 \times (-25) = -50 $$
+
+**Bước (d): Cập nhật tham số**
+$$ w_{new} = w - \eta \cdot \frac{\partial L}{\partial w} = 10 - 0.01 \times (-150) = 10 + 1.5 = 11.5 $$
+$$ b_{new} = b - \eta \cdot \frac{\partial L}{\partial b} = 5 - 0.01 \times (-50) = 5 + 0.5 = 5.5 $$
+
+**✅ Kết quả sau Iteration 1:** $w = 11.5$, $b = 5.5$
 
 ---
 
-_Hết phần Linear Regression - Phương án 1: Giải thích đơn giản_
+## 6.3. Iteration 2: Mẫu (4, 55)
+
+**Dữ liệu:** $x_1 = 4$, $y_1 = 55$
+**Tham số hiện tại:** $w = 11.5$, $b = 5.5$
+
+**Bước (a): Tính Output**
+$$ \hat{y}_1 = 11.5 \times 4 + 5.5 = 46 + 5.5 = 51.5 $$
+
+**Bước (b): Tính Loss**
+$$ L = (51.5 - 55)^2 = (-3.5)^2 = 12.25 $$
+
+> [!NOTE]
+> Loss giảm từ 625 xuống còn 12.25! Mô hình đang học tốt.
+
+**Bước (c): Tính Đạo hàm**
+$$ \frac{\partial L}{\partial w} = 2 \times 4 \times (51.5 - 55) = 8 \times (-3.5) = -28 $$
+$$ \frac{\partial L}{\partial b} = 2 \times (-3.5) = -7 $$
+
+**Bước (d): Cập nhật tham số**
+$$ w_{new} = 11.5 - 0.01 \times (-28) = 11.5 + 0.28 = 11.78 $$
+$$ b_{new} = 5.5 - 0.01 \times (-7) = 5.5 + 0.07 = 5.57 $$
+
+**✅ Kết quả sau Iteration 2:** $w = 11.78$, $b = 5.57$
+
+---
+
+## 6.4. Iteration 3: Mẫu (5, 66)
+
+**Dữ liệu:** $x_2 = 5$, $y_2 = 66$
+**Tham số hiện tại:** $w = 11.78$, $b = 5.57$
+
+**Bước (a): Tính Output**
+$$ \hat{y}_2 = 11.78 \times 5 + 5.57 = 58.9 + 5.57 = 64.47 $$
+
+**Bước (b): Tính Loss**
+$$ L = (64.47 - 66)^2 = (-1.53)^2 \approx 2.34 $$
+
+**Bước (c): Tính Đạo hàm**
+$$ \frac{\partial L}{\partial w} = 2 \times 5 \times (-1.53) = -15.3 $$
+$$ \frac{\partial L}{\partial b} = 2 \times (-1.53) = -3.06 $$
+
+**Bước (d): Cập nhật tham số**
+$$ w_{new} = 11.78 - 0.01 \times (-15.3) = 11.78 + 0.153 = 11.933 $$
+$$ b_{new} = 5.57 - 0.01 \times (-3.06) = 5.57 + 0.0306 = 5.6006 $$
+
+**✅ Kết quả sau Iteration 3:** $w = 11.933$, $b = 5.6006$
+
+---
+
+## 6.5. Iteration 4: Mẫu (6, 93)
+
+**Dữ liệu:** $x_3 = 6$, $y_3 = 93$
+**Tham số hiện tại:** $w = 11.933$, $b = 5.6006$
+
+**Bước (a): Tính Output**
+$$ \hat{y}_3 = 11.933 \times 6 + 5.6006 = 71.598 + 5.6006 = 77.1986 $$
+
+**Bước (b): Tính Loss**
+$$ L = (77.1986 - 93)^2 = (-15.8014)^2 \approx 249.68 $$
+
+> [!WARNING]
+> Loss tăng lên vì dữ liệu này có độ lệch lớn so với xu hướng chung.
+
+**Bước (c): Tính Đạo hàm**
+$$ \frac{\partial L}{\partial w} = 2 \times 6 \times (-15.8014) \approx -189.62 $$
+$$ \frac{\partial L}{\partial b} = 2 \times (-15.8014) \approx -31.60 $$
+
+**Bước (d): Cập nhật tham số**
+$$ w_{new} = 11.933 - 0.01 \times (-189.62) = 11.933 + 1.8962 = 13.8292 $$
+$$ b_{new} = 5.6006 - 0.01 \times (-31.60) = 5.6006 + 0.316 = 5.9166 $$
+
+**✅ Kết quả sau Iteration 4:** $w = 13.8292$, $b = 5.9166$
+
+---
+
+## 6.6. Kiểm chứng kết quả
+
+**Câu hỏi:** Dự đoán lương cho nhân viên 7 năm kinh nghiệm?
+
+**Với tham số cuối cùng:** $w = 13.8292$, $b = 5.9166$
+
+$$ \hat{y} = 13.8292 \times 7 + 5.9166 = 96.8044 + 5.9166 \approx 102.72 \text{ (triệu VND)} $$
+
+**So sánh Loss trước và sau huấn luyện:**
+| Thời điểm | Tham số | Dự đoán (7 năm) | Loss (giả sử thực tế = 100) |
+|:---|:---:|:---:|:---:|
+| **Trước huấn luyện** | $w=10, b=5$ | $10 \times 7 + 5 = 75$ | $(75-100)^2 = 625$ |
+| **Sau huấn luyện** | $w=13.83, b=5.92$ | $\approx 102.72$ | $(102.72-100)^2 \approx 7.4$ |
+
+> [!IMPORTANT]
+> **Kết luận:** Loss giảm từ **625** xuống còn **7.4** (giảm ~98.8%)! Mô hình đã học được quy luật từ dữ liệu.
+
+---
+
+# 7. BẢNG TỔNG HỢP & MẸO THI
+
+## 7.1. Bảng tổng hợp công thức
+
+| Công thức | Ký hiệu | Ý nghĩa |
+|:---|:---:|:---|
+| **Phương trình dự đoán** | $\hat{y} = wx + b$ | Tính giá trị dự đoán |
+| **Hàm Loss (Squared Error)** | $L = (\hat{y} - y)^2$ | Đo độ sai lệch |
+| **Đạo hàm theo w** | $\frac{\partial L}{\partial w} = 2x(\hat{y}-y)$ | Hướng điều chỉnh w |
+| **Đạo hàm theo b** | $\frac{\partial L}{\partial b} = 2(\hat{y}-y)$ | Hướng điều chỉnh b |
+| **Cập nhật w** | $w = w - \eta \cdot \frac{\partial L}{\partial w}$ | Điều chỉnh trọng số |
+| **Cập nhật b** | $b = b - \eta \cdot \frac{\partial L}{\partial b}$ | Điều chỉnh độ lệch |
+
+---
+
+## 7.2. Mẹo bấm máy tính Casio
+
+> [!TIP]
+> **Mẹo 1:** Lưu giá trị $w$ vào biến **A** và $b$ vào biến **B** để dễ dàng tính toán lặp đi lặp lại.
+
+> [!TIP]
+> **Mẹo 2:** Khi tính $(\hat{y} - y)$, hãy tính và lưu vào biến **C** vì giá trị này dùng chung cho cả hai công thức đạo hàm.
+
+> [!TIP]
+> **Mẹo 3:** Bấm máy theo công thức đã sắp xếp:
+> 1. $\hat{y} = A \times x + B$ → Lưu vào **D**
+> 2. $error = D - y$ → Lưu vào **C**
+> 3. $dL/dw = 2 \times x \times C$
+> 4. $dL/db = 2 \times C$
+> 5. $A_{new} = A - \eta \times (dL/dw)$
+> 6. $B_{new} = B - \eta \times (dL/db)$
+
+---
+
+## 7.3. Các lỗi thường gặp khi làm bài
+
+| Lỗi | Nguyên nhân | Cách khắc phục |
+|:---|:---|:---|
+| Quên dấu trừ trong công thức cập nhật | Nhầm công thức | Nhớ: "Trừ đi để xuống đồi" |
+| Nhầm lẫn $\hat{y}$ và $y$ | Không phân biệt | $\hat{y}$ = Dự đoán, $y$ = Thực tế |
+| Quên nhân 2 trong đạo hàm | Đạo hàm sai | Luôn có hệ số 2 từ bình phương |
+| Nhầm đạo hàm w và b | Không nhớ công thức | $w$ nhân thêm $x$, $b$ không nhân |
+| Sai learning rate | Không đọc kỹ đề | Kiểm tra $\eta$ trước khi tính |
+
+---
+
+*Hết phần Giải thích đơn giản - Hồi quy tuyến tính*
